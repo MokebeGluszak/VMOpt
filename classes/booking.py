@@ -42,9 +42,9 @@ def get_booking(
     supplier: ENUM.Supplier,
     booking_quality: ENUM.BookingQuality,
 ) -> Booking:
-    from zzz_ordersTools import get_booking_path
+    from zzz_ordersTools import get_booking_file_path
 
-    path = get_booking_path(supplier, booking_quality)
+    path = get_booking_file_path(supplier, booking_quality)
 
     if supplier == ENUM.Supplier.TVP:
         print(0 / 0)  # wywalić wczytywanie jako string

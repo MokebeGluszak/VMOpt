@@ -5,6 +5,7 @@ import pandas as pd
 
 import zzz_const as CONST
 import zzz_enums as ENUM
+from classes.booking_report import BookingReport
 from classes.break_info import BreakInfo
 from classes.dfProcessor import get_df_processor
 from classes.exceptions import MyProgramException
@@ -56,6 +57,8 @@ class Schedule(iDataFrameable):
         self.df: pd.DataFrame = df
         self.schedule_breaks: Collection = schedule_breaks
         self.schedule_info = schedule_info
+        self._booking_report = ""
+        self._booking = None
 
     def get_timebands_dict(self) -> Dict[str, Timeband]:
         timebands_dict: Dict[str, Timeband] = {}
@@ -115,7 +118,22 @@ class Schedule(iDataFrameable):
                         breaks.append(schedule_break)
         return breaks
 
+    @property
+    def booking_report(self)->BookingReport:
+        return self._booking_report
+    
+    @booking_report.setter
+    def booking_report(self, value:BookingReport)->None:
+        self._booking_report = value
 
+    @property
+    def booking(self)->BookingReport:
+        return self._booking
+    
+    @booking.setter
+    def booking(self, value:BookingReport)->None:
+        self._booking = value
+        
 def get_wantedness_info_from_row(wantedness) -> WantednessInfo:
     is_wanted: bool
     subcampaign: int

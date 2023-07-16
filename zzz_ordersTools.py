@@ -144,7 +144,7 @@ def get_copy_indexes_df() -> pd.DataFrame:
     return df
 
 
-def get_booking_path(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQuality) -> str:
+def get_booking_file_path(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQuality) -> str:
     folder = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source"
     case = supplier.value + booking_quality.value
     if case == ENUM.Supplier.POLSAT.value + ENUM.BookingQuality.OK.value:
@@ -162,6 +162,20 @@ def get_booking_path(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQuali
     # elif Supplier == GluSupplier.TVP:
     #     file = "2 booking 2022-10-06 113747 TVP 1z2.xls"
     return os.path.join(folder, file)
+
+def get_free_times_folder_path(supplier: ENUM.Supplier, free_times_quality: ENUM.FreeTimesQuality) -> str:
+    folder = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source\zrobić porządki"
+
+    case = supplier.value + free_times_quality.value
+    if case == ENUM.Supplier.POLSAT.value + ENUM.FreeTimesQuality.OK.value:
+        subfolder = "7. FreeTimesPolsat"
+    else:
+        raise MyProgramException(f"Wrong supplier: {supplier} / booking_quality: {free_times_quality}")
+    # elif supplier == GluSupplier.TVN:
+    #     file = "2 booking 2022-10-06 114034 TVN no pato.txt"
+    # elif Supplier == GluSupplier.TVP:
+    #     file = "2 booking 2022-10-06 113747 TVP 1z2.xls"
+    return os.path.join(folder, subfolder)
 
 
 def check_time_space_consistency(df_booking: pd.DataFrame, df_schedule: pd.DataFrame):

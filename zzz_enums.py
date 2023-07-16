@@ -42,6 +42,9 @@ class BookingQuality(Enum):
     ILLEGAL_CHANNELS = "Illegal channels"
     FUCKED_UP_DATES = "Fucked up dates"
 
+class FreeTimesQuality(Enum):
+    OK = "OK"
+
 
 class ScheduleType(Enum):
     OK_4CHANNELS_CLEAR = "OK_4channels"

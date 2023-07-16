@@ -3,14 +3,13 @@ from typing import Dict, List, Set
 
 import pandas as pd
 
-import c_matching as matching
+import c_process_booking as matching
 import d_process_schedule as ps
 import zzz_const as const
 import zzz_enums as enum
 import zzz_ordersTools as ot
 from classes.booking import get_booking
-from classes.booking_report import BookingReport
-from classes.schedule import get_schedule
+from classes.schedule import get_schedule, Schedule
 from classes.subcampaign import Subcampaign
 from zzz_tools import export_df
 
@@ -57,29 +56,26 @@ def get_subcampaigns_dict(subcampaign_orgs_booking: Set[str], subcampaigns_sched
         raise NotImplementedError("po wykonaniu tej funkcji każdy subcampaign_org z bookingu musi być w valid_dict")
     return valid_dict
 
-def process_booking(
+def get_schedule_with_booking(
     supplier: enum.Supplier,
     booking_quality: enum.BookingQuality,
     schedule_type: enum.ScheduleType,
-    do_export_debug_files: bool = True,
-) -> str:
+) -> Schedule:
     # print(calculate_circle_data(5, CircleDataType.PERIMETER))
 
 
     schedule = get_schedule(schedule_type)
-    booking = get_booking(supplier,  booking_quality=booking_quality)
+    schedule.booking = get_booking(supplier,  booking_quality=booking_quality)
 
 
-    subcampaigns_dict = get_subcampaigns_dict(booking.get_subcampaings_orgs_set(), schedule.get_subcampaigns())
-    ot.check_time_space_consistency(booking.df, schedule.df)
-    matching.match_channel_breaks_step1_id(booking.get_unmatched_channel_breaks(), schedule.schedule_breaks)
-    matching.match_channel_breaks_step2_timebands(booking.get_unmatched_channel_breaks(), schedule.get_timebands_dict())
-    booking_report:BookingReport =   ps.process_booking(schedule.schedule_breaks, booking.channel_breaks, subcampaigns_dict)  # modyfikuje schedule brejki
-    print (booking_report)
-    result_schedule_path = schedule.export()
-    if do_export_debug_files:
-        export_df(booking.to_dataframe(enum.ExportFormat.ChannelBreak), "channel breaks")
-        export_df(schedule.to_dataframe(enum.ExportFormat.ScheduleBreak_rozkminki), "schedule - rozkminki")
+    subcampaigns_dict = get_subcampaigns_dict(schedule.booking.get_subcampaings_orgs_set(), schedule.get_subcampaigns())
+    ot.check_time_space_consistency(schedule.booking.df, schedule.df)
+    matching.match_channel_breaks_step1_id(schedule.booking.get_unmatched_channel_breaks(), schedule.schedule_breaks)
+    matching.match_channel_breaks_step2_timebands(schedule.booking.get_unmatched_channel_breaks(), schedule.get_timebands_dict())
+    schedule.booking_report =   ps.process_booking(schedule.schedule_breaks, schedule.booking.channel_breaks, subcampaigns_dict)  # modyfikuje schedule brejki
+
+
+
 
         # t.export_df(schedule.df, "1a schedule_processed")
         # t.export_df(booking.df, "1b booking_processed")
@@ -87,17 +83,23 @@ def process_booking(
         # df_channelBreaks = booking.get_df()
         # t.export_df(df_channelBreaks, "channel breaks")
         # t.export_df(df_channelsMapping, "channels_mapping")
-    return result_schedule_path
+    return schedule
 
 
 def main():
     supplier: enum.Supplier = enum.Supplier.POLSAT
     booking_quality: enum.BookingQuality = enum.BookingQuality.FUCKED_UP_DATES
     schedule_type: enum.ScheduleType = enum.ScheduleType.OK_4CHANNELS_1WANTED
+    free_times_quality: enum.FreeTimesQuality = enum.FreeTimesQuality.OK
 
+    do_export_debug_files:bool = True
+    schedule:Schedule =  get_schedule_with_booking(supplier, booking_quality, schedule_type)
+    schedule:Schedule = get_schedule_with_free_times(schedule, supplier, free_times_quality)
+    if do_export_debug_files:
+        export_df(schedule.booking.to_dataframe(enum.ExportFormat.ChannelBreak), "channel breaks")
+        export_df(schedule.to_dataframe(enum.ExportFormat.ScheduleBreak_rozkminki), "schedule - rozkminki")
 
-    process_booking(supplier, booking_quality, schedule_type)
-
+    print (schedule.booking_report)
 
 if __name__ == "__main__":
     main()
