@@ -1,0 +1,1 @@
+{"CopyLengths":[{"CopyLength":45,"CopyIndex":1.5},{"CopyLength":30,"CopyIndex":1},{"CopyLength":15,"CopyIndex":0.7},{"CopyLength":20,"CopyIndex":0.9}]}
