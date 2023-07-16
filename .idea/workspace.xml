@@ -5,40 +5,7 @@
   </component>
   <component name="BlackConnectSettings" port="45490" lineLength="120" triggerOnEachSave="true" triggerOnReformat="true" />
   <component name="ChangeListManager">
-    <list default="true" id="364160d3-0f72-4b22-ba95-24e88e935ebd" name="Changes" comment="wywalone none">
-      <change afterPath="$PROJECT_DIR$/.idea/MnrwOrdersFlow.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/classes/free_times.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/d_process_free_times.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 112529 Schedule czysta.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 112937 Schedule po pierwszym wyborze dwie kopie.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 113542 Schedule po dobraniu w pato.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 113542 Schedule po dobraniu w pato.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 114330 Schedule po bukingach.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 114448 Schedule po bukingach i wolnych czasach.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/2022-10-06 114448 Schedule po bukingach i wolnych czasach.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/1. Schedule/tvn small.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/3. BookingTvp/2022-10-06 113747 TVP 1z2.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/3. BookingTvp/2022-10-06 113748 TVP 2z2.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/4. BookingPolsat/2022-10-06 113852 Polsat1z2.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/4. BookingPolsat/2022-10-06 113852 Polsat2z2.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/4. BookingPolsat/2022-10-06 114310 Polsat1z2.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/4. BookingPolsat/2022-10-06 114310 Polsat2z2.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/5. BookingTvn/2022-10-06 114034 TVN no pato.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/5. BookingTvn/2022-10-06 114034 TVN.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/5. BookingTvn/2022-10-06 114239 TVN.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/7. FreeTimesPolsat/2022-10-06 114403 Polsat 15s.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/7. FreeTimesPolsat/2022-10-06 114403 Polsat 30.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/zrobić porządki/8. FreeTimesTvn/2022-10-06 114412 TVN.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_matching.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_matching.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_matching.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_process_booking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/booking.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/booking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/schedule.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/schedule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zzz_enums.py" beforeDir="false" afterPath="$PROJECT_DIR$/zzz_enums.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zzz_ordersTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/zzz_ordersTools.py" afterDir="false" />
-    </list>
+    <list default="true" id="364160d3-0f72-4b22-ba95-24e88e935ebd" name="Changes" comment="wywalone none" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -321,6 +288,7 @@
       <workItem from="1689508300038" duration="69000" />
       <workItem from="1689508379020" duration="195000" />
       <workItem from="1689508585776" duration="847000" />
+      <workItem from="1689509446666" duration="508000" />
     </task>
     <task id="LOCAL-00001" summary="fghdfh">
       <created>1686065004210</created>
@@ -445,7 +413,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689501518420</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="wywalone none">
+      <created>1689509474866</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1689509474866</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
