@@ -1,10 +1,10 @@
+import zzz_const as CONST
 import zzz_enums as ENUM
 from classes.booking import get_booking
+from classes.folder import get_folder
 from classes.free_times import get_free_times
 from classes.matching_processor import MatchingProcessor
-
 from classes.schedule import Schedule, get_schedule
-
 from zzz_tools import export_df
 
 
@@ -15,6 +15,7 @@ def matching():
     free_times_quality: ENUM.FreeTimesQuality = ENUM.FreeTimesQuality.OK
     do_export_debug_files: bool = True
 
+    get_folder(CONST.PATH_SLOWNIKI_MOD_VALUES_FOLDER).clear()
     schedule: Schedule = get_schedule(schedule_type)
     booking = get_booking(supplier, booking_quality)
     free_times = get_free_times(supplier, free_times_quality)

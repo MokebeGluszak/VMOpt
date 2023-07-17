@@ -78,17 +78,18 @@ class Schedule(iDataFrameable):
         return timebands_dict
 
     @property
-    def get_subcampaigns(self) -> List[Subcampaign]:
+    def get_subcampaigns_dict(self) -> dict[Subcampaign]:
         shedule_info_json = json.loads(self.schedule_info)
         subcampaign_json = shedule_info_json["campaingNames"]
-        subcampaigns = []
+        subcampaigns = {}
         for subcampaigns_json in subcampaign_json:
             value = subcampaigns_json["value"]
             copy_name = subcampaigns_json["name"]
             length = subcampaigns_json["length"]
             subcampaign = Subcampaign(value, copy_name, length)
-            subcampaigns.append(subcampaign)
+            subcampaigns[subcampaign.get_hash] = subcampaign
         return subcampaigns
+
 
 
 
@@ -195,11 +196,11 @@ def get_schedule_breaks(df: pd.DataFrame) -> Collection:
 def get_schedule(schedule_type: ENUM.ScheduleType) -> Schedule:
     path_schedule = CONST.get_path_schedule(schedule_type)
     df_scheduleOrg = get_df_processor(ENUM.DfProcessorType.SCHEDULE, path_schedule).get_df
-
+    schedule_info = df_scheduleOrg["scheduleInfo"][0]
     df_scheduleProcessed = getProcessedScheduleDf(df_scheduleOrg, SgltChannelMapping.get_df)
 
     schedule_breaks = get_schedule_breaks(df_scheduleProcessed)
-    schedule_info = df_scheduleOrg["scheduleInfo"][0]
+
 
     schedule = Schedule(path_schedule, df_scheduleProcessed, schedule_breaks, schedule_info)
     return schedule

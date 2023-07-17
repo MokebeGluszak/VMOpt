@@ -79,3 +79,8 @@ class CannonColumnsSet(Enum):
 class FileType(Enum):
     XLSX = ".xlsx"
     CSV = ".csv"
+
+class SlownikType(Enum):
+    CHANNELS = "channels"
+    SUBCAMPAIGNS = "subcampaigns"
+    WOLNE_CZASY_LENGTHS = "wolne_czasy_lengths"

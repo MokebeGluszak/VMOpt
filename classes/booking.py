@@ -35,11 +35,11 @@ class Booking(iDataFrameable):
 
     @property
     def get_subcampaings_orgs_set(self) -> Set[str]:
-        subcampaigns_orgs = []
+        subcampaigns_orgs = set()
         for channel_break in self.channel_breaks:
             subcampaigns_org = channel_break.subcampaing_org
-            subcampaigns_orgs.append(subcampaigns_org)
-        return set(subcampaigns_orgs)
+            subcampaigns_orgs.add(subcampaigns_org)
+        return subcampaigns_orgs
 
 
 def get_booking_file_path(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQuality) -> str:

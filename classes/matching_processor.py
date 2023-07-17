@@ -1,10 +1,9 @@
 import dataclasses
 
 import c_matching_algorithm as m
-import zzz_hardcoded_gui as HGUI
 from classes.booking import Booking
 from classes.booking_report import BookingReport
-from classes.free_times import free_times
+from classes.free_times import FreeTimes
 from classes.schedule import Schedule
 from d_booking_algorithm import get_booking_report
 from zzz_ordersTools import check_time_space_consistency
@@ -14,20 +13,19 @@ from zzz_ordersTools import check_time_space_consistency
 class MatchingProcessor:
     schedule: Schedule
     booking: Booking
-    free_times: free_times
+    free_times: FreeTimes
     _booking_report: BookingReport = None
     _booking: Booking = None
 
     def process_booking(
         self,
     ) -> None:
-        # print(calculate_circle_data(5, CircleDataType.PERIMETER))
 
-        subcampaigns_dict = HGUI.get_subcampaigns_dict(self.booking.get_subcampaings_orgs_set, self.schedule.get_subcampaigns)
+
         check_time_space_consistency(self.booking.df, self.schedule.df, "Booking")
         m.match_channel_breaks_step1_id(self.booking.get_unmatched_channel_breaks, self.schedule.schedule_breaks)
         m.match_channel_breaks_step2_timebands(self.booking.get_unmatched_channel_breaks, self.schedule.get_timebands_dict)
-        self.booking_report = get_booking_report(self.schedule.schedule_breaks, self.booking.channel_breaks, subcampaigns_dict)  # modyfikuje schedule brejki
+        self.booking_report = get_booking_report(self.schedule.schedule_breaks, self.booking.channel_breaks, self.schedule.get_subcampaigns_dict)  # modyfikuje schedule brejki
 
         # t.export_df(schedule.df, "1a schedule_processed")
         # t.export_df(booking.df, "1b booking_processed")

@@ -8,9 +8,9 @@ import zzz_enums as ENUM
 from classes.channel_break import ChannelBreak
 from classes.df_processor import get_df_processor
 from classes.exceptions import MyProgramException
-from classes.merger import get_merger
+from classes.folder import get_folder
 from zzz_ordersTools import SgltChannelMapping
-from zzz_tools import get_files, get_union_of_dfs
+from zzz_tools import get_union_of_dfs
 
 
 def get_free_times_folder_path(supplier: ENUM.Supplier, free_times_quality: ENUM.FreeTimesQuality) -> str:
@@ -29,7 +29,7 @@ def get_free_times_folder_path(supplier: ENUM.Supplier, free_times_quality: ENUM
 
 
 @dataclass
-class free_times:
+class FreeTimes:
     df: pd.DataFrame
     channel_breaks: List[ChannelBreak]
 
@@ -46,11 +46,13 @@ def get_df_processor_type_from_supplier(supplier: ENUM.Supplier) -> ENUM.DfProce
 def get_df_free_times_org(supplier: ENUM.Supplier, free_times_quality: ENUM.FreeTimesQuality) -> pd.DataFrame:
     dfs: List[pd.DataFrame] = []
     folder_path = get_free_times_folder_path(supplier, free_times_quality)
-    files = get_files(folder_path)
+    folder = get_folder(folder_path)
+
     df_processor_type = get_df_processor_type_from_supplier(supplier)
-    for file in files:
-        single_file_df = get_df_processor(df_processor_type, file).get_df
-        single_file_df["channel_org"]
+    for file in folder.get_files:
+        single_file_df = get_df_processor(df_processor_type, file.path).get_df
+        single_file_df["channel_org"] = file.name
+        single_file_df["freeTimeLength_org"] = file.name
         dfs.append(single_file_df)
 
     df = get_union_of_dfs(dfs)
@@ -60,10 +62,11 @@ def get_df_free_times_org(supplier: ENUM.Supplier, free_times_quality: ENUM.Free
 def get_free_times(
     supplier: ENUM.Supplier,
     free_times_quality: ENUM.FreeTimesQuality,
-) -> free_times:
-    # free_times = free_times()
+) -> FreeTimes:
+
     df_org = get_df_free_times_org(supplier, free_times_quality)
     df_channel_mapping = SgltChannelMapping.get_df
-    df = get_merger("Free times channel mapping", df_org, df_channel_mapping, "channel_org").get_df
-
-    return free_times
+    # df = get_merger("Free times channel mapping", df_org, df_channel_mapping, "channel_org").get_df
+    channel_breaks = None
+    # free_times = FreeTimes(df, channel_breaks)
+    # return free_times

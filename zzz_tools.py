@@ -1,13 +1,17 @@
+import collections
 import datetime as dt
 import os
 import tkinter as tk
 from enum import Enum
-from typing import List, Union, Any, Set, Type
+from typing import List, Union, Any, Set, Type, Dict
 
 import pandas as pd
 
+import zzz_const as CONST
 import zzz_enums as ENUM
 from classes.exceptions import MyProgramException
+from classes.file import File
+from classes.folder import get_folder, Folder
 from classes.result_folder import ResultFolder
 
 
@@ -290,17 +294,6 @@ def is_enum_value(my_string: str, my_enum: Type[Enum]) -> bool:
     return ok
 
 
-def get_files(folder_path: str, omit_temp:bool=True) -> List[str]:
-    import os
-
-    files: List[str] = []
-
-
-    for entry in os.scandir(folder_path):
-        if entry.is_file() and not entry.name.startswith('~'):
-            file_path = os.path.join(folder_path, entry.name)
-            files.append(file_path)
-    return files
 
 
 
@@ -312,3 +305,50 @@ def get_union_of_dfs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     # Concatenate the dataframes
     union_df = pd.concat(dfs, ignore_index=True)
     return union_df
+
+
+def setize(data_structure)->Set:
+    len_org = len(data_structure)
+    my_set = set(data_structure)
+    len_distinct = len(my_set)
+
+    if len_org != len_distinct:
+        raise ValueError("Duplicate values found")
+    else:
+
+        return  my_set
+
+def merge_dicts(dict1: Dict, dict2: Dict) -> Dict:
+    if any(key in dict1 for key in dict2):
+        raise ValueError("Duplicate keys found between dict1 and dict2")
+    result = {**dict1, **dict2}
+    return result
+
+
+def get_values_from_txt(file_path:str)->List[str]:
+    with open(file_path, "r", encoding=CONST.ENCODING) as file:
+        values = file.read().splitlines()
+    return values
+
+def print_values_to_txt(values:collections.abc.Iterable, file_path:str)->File:
+    with open(file_path, "w", encoding=CONST.ENCODING) as file:
+        for item in values:
+            file.write(str(item) + "\n")
+
+
+def print_mod_values(mod_values: collections.abc.Iterable, slownik_name: str) -> File:
+    file_path = get_mod_values_file_path(slownik_name)
+    print_values_to_txt(mod_values, file_path)
+
+
+def build_path(part1:any, part2:any) -> str:
+    path = os.path.join(str(part1), part2)
+    return path
+def get_mod_values_folder()->Folder:
+    mod_values_folder = get_folder(CONST.PATH_SLOWNIKI_MOD_VALUES_FOLDER)
+    return mod_values_folder
+def get_mod_values_file_path(slownik_name:str) -> str:
+    folder = get_mod_values_folder()
+    file_name = "mod values " + slownik_name + ".txt"
+    file_path = build_path(folder, file_name)
+    return file_path
