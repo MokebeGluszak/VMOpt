@@ -91,9 +91,6 @@ def get_cannon_columns_set(cannon_columns_set: ENUM.CannonColumnsSet) -> Set[str
     return my_set
 
 
-
-
-
 def get_substring_between_parentheses(input_str):
     start_index = input_str.find("(") + 1  # Find the index of the opening parenthesis and add 1 to skip it
     end_index = input_str.rfind(")")  # Find the index of the closing parenthesis
@@ -284,10 +281,34 @@ def check_cannon_columns(
             df.drop(columns_to_drop, axis=1, inplace=True)
 
 
-def is_enum_value(my_string:str , my_enum:Type[Enum])->bool:
+def is_enum_value(my_string: str, my_enum: Type[Enum]) -> bool:
     ok = False
     for member in my_enum:
         if member.value == my_string:
-            ok =  True
+            ok = True
             break
     return ok
+
+
+def get_files(folder_path: str, omit_temp:bool=True) -> List[str]:
+    import os
+
+    files: List[str] = []
+
+
+    for entry in os.scandir(folder_path):
+        if entry.is_file() and not entry.name.startswith('~'):
+            file_path = os.path.join(folder_path, entry.name)
+            files.append(file_path)
+    return files
+
+
+
+
+def get_union_of_dfs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
+    if not all(df.columns.tolist() == dfs[0].columns.tolist() for df in dfs):
+        raise ValueError("Columns of the dataframes are different")
+
+    # Concatenate the dataframes
+    union_df = pd.concat(dfs, ignore_index=True)
+    return union_df

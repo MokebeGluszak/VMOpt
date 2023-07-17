@@ -42,6 +42,7 @@ class BookingQuality(Enum):
     ILLEGAL_CHANNELS = "Illegal channels"
     FUCKED_UP_DATES = "Fucked up dates"
 
+
 class FreeTimesQuality(Enum):
     OK = "OK"
 
@@ -60,9 +61,11 @@ class ExceptionType(Enum):
 
 
 class DfProcessorType(Enum):
+    FREE_TIMES_POLSAT = "Free times Polsat"
     HISTORY_ORG = "History"
     BOOKING_POLSAT = "Schedule Polsat"
     SCHEDULE = "SCHEDULE"
+
 
 class CannonColumnsSet(Enum):
     DoNotCheck = "DoNotCheck"
@@ -71,6 +74,7 @@ class CannonColumnsSet(Enum):
     ScheduleProcessedFull = "ScheduleProcessedFull"
     ScheduleMatching = "ScheduleMatching"
     ScheduleOrg = "ScheduleOrg"
+
 
 class FileType(Enum):
     XLSX = ".xlsx"

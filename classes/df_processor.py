@@ -63,9 +63,15 @@ class DfProcessorConfig:
                 self.add_column("grpTg_99", "grpTg_99")
                 self.add_column("positionCode", "positionCode")
                 self.add_column("scheduleInfo", "scheduleInfo")
-
+            case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
+                # self.add_column("Channel", "channel")
+                self.add_column("ID Bloku", "blockId")
+                self.add_column("Data", "xDate")
+                self.add_column("Godzina", "xTime")
+                self.add_column("Nazwa", "programme")
+                self.add_column("Spot price", "ratecard")
             case _:
-                raise ValueError(f"Wrong df_processor_type: {self.df_processor_type}")
+                    raise ValueError(f"Wrong df_processor_type: {self.df_processor_type}")
 
 
 def get_df_processor_config(df_processor_type: ENUM.DfProcessorType):
@@ -74,6 +80,8 @@ def get_df_processor_config(df_processor_type: ENUM.DfProcessorType):
             config = DfProcessorConfig(df_processor_type, 0, ENUM.FileType.XLSX)
         case ENUM.DfProcessorType.BOOKING_POLSAT:
             config = DfProcessorConfig(df_processor_type, 0, ENUM.FileType.XLSX, import_only_defined_columns=False)
+        case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
+            config = DfProcessorConfig(df_processor_type, 0, ENUM.FileType.XLSX, import_only_defined_columns=True)
         case ENUM.DfProcessorType.SCHEDULE:
             config = DfProcessorConfig(
                     df_processor_type,
@@ -201,6 +209,8 @@ class DfProcessor:
                 df["subcampaign_org"] = df["Długość"] + "-" + self.get_file_name
                 df.rename(columns={"ID Bloku": "blockId"}, inplace=True)
             case ENUM.DfProcessorType.SCHEDULE:
+                pass
+            case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
                 pass
             case _:
                 raise NotImplementedError

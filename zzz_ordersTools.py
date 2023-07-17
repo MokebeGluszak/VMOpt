@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from datetime import datetime
 from typing import List, Dict
@@ -129,9 +128,12 @@ class SgltChannelMapping(metaclass=Singleton):
     @classmethod
     @property
     def get_channel_supplier_dict(cls) -> Dict[str, str]:
-        if not hasattr(cls, "channel_supplier_dict") or (hasattr(cls, "channel_supplier_dict") and cls.channel_supplier_dict is None):
+        if not hasattr(cls, "channel_supplier_dict") or (
+            hasattr(cls, "channel_supplier_dict") and cls.channel_supplier_dict is None
+        ):
             cls.channel_supplier_dict = cls.get_df.set_index("channel")["supplier"].to_dict()
         return cls.channel_supplier_dict
+
 
 def get_copy_indexes_df() -> pd.DataFrame:
     json_copyLengths_path = CONST.PATH_JSON_COPY_INDEXES
@@ -144,41 +146,7 @@ def get_copy_indexes_df() -> pd.DataFrame:
     return df
 
 
-def get_booking_file_path(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQuality) -> str:
-    folder = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source"
-    case = supplier.value + booking_quality.value
-    if case == ENUM.Supplier.POLSAT.value + ENUM.BookingQuality.OK.value:
-        file = "2 booking polsat no pato2023-04-22 1052.xlsx"
-    elif case == ENUM.Supplier.POLSAT.value + ENUM.BookingQuality.ABSENT_CHANNELS.value:
-        file = "2 booking polsat no pato2023-04-22 1052 -brakujące stacje.xlsx"
-    elif case == ENUM.Supplier.POLSAT.value + ENUM.BookingQuality.ILLEGAL_CHANNELS.value:
-        file = "2 booking polsat no pato2023-04-22 1052 -zjebane stacje.xlsx"
-    elif case == ENUM.Supplier.POLSAT.value + ENUM.BookingQuality.FUCKED_UP_DATES.value:
-        file = "2 booking polsat no pato2023-04-22 1052 - zjebane daty.xlsx"
-    else:
-        raise MyProgramException(f"Wrong supplier: {supplier} / booking_quality: {booking_quality}")
-    # elif supplier == GluSupplier.TVN:
-    #     file = "2 booking 2022-10-06 114034 TVN no pato.txt"
-    # elif Supplier == GluSupplier.TVP:
-    #     file = "2 booking 2022-10-06 113747 TVP 1z2.xls"
-    return os.path.join(folder, file)
-
-def get_free_times_folder_path(supplier: ENUM.Supplier, free_times_quality: ENUM.FreeTimesQuality) -> str:
-    folder = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source\zrobić porządki"
-
-    case = supplier.value + free_times_quality.value
-    if case == ENUM.Supplier.POLSAT.value + ENUM.FreeTimesQuality.OK.value:
-        subfolder = "7. FreeTimesPolsat"
-    else:
-        raise MyProgramException(f"Wrong supplier: {supplier} / booking_quality: {free_times_quality}")
-    # elif supplier == GluSupplier.TVN:
-    #     file = "2 booking 2022-10-06 114034 TVN no pato.txt"
-    # elif Supplier == GluSupplier.TVP:
-    #     file = "2 booking 2022-10-06 113747 TVP 1z2.xls"
-    return os.path.join(folder, subfolder)
-
-
-def check_time_space_consistency(df_booking: pd.DataFrame, df_schedule: pd.DataFrame):
+def check_time_space_consistency(df_booking: pd.DataFrame, df_schedule: pd.DataFrame, merge_caption: str):
     get_merger(
         "check_time_space_consistency",
         df_booking,
@@ -188,20 +156,20 @@ def check_time_space_consistency(df_booking: pd.DataFrame, df_schedule: pd.DataF
         exception_type_unjoined=ENUM.ExceptionType.MERGER_ABSENT_CHANNELS,
     ).return_merged_df()
 
-    min_date_booking = df_booking["dateTime"].min()
-    max_date_booking = df_booking["dateTime"].max()
+    min_date_merged = df_booking["dateTime"].min()
+    max_date_merged = df_booking["dateTime"].max()
     min_date_schedule = df_schedule["dateTime"].min()
     max_date_schedule = df_schedule["dateTime"].max()
 
     dates_ok: bool = False
-    if max_date_booking <= max_date_schedule:
-        if min_date_booking >= min_date_schedule:
+    if max_date_merged <= max_date_schedule:
+        if min_date_merged >= min_date_schedule:
             dates_ok = True
 
     if not dates_ok:
         raise MyProgramException(
             f"Dates are not consistent:\n "
-            f"Booking: {min_date_booking} to  {max_date_booking} \n "
+            f"{merge_caption}: {min_date_merged} to  {max_date_merged} \n "
             f"Schedule: {min_date_schedule} to {max_date_schedule}"
         )
 
