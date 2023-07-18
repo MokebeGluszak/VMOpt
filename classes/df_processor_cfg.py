@@ -1,10 +1,8 @@
 from dataclasses import dataclass, field
-from dataclasses import dataclass, field
 from typing import List, Optional
 
 import zzz_enums as ENUM
 from classes.column_def import columnDef
-from classes.slownik_cfg import SlownikCfg
 from zzz_tools import Collection
 
 
@@ -18,8 +16,9 @@ class DfProcessorConfig:
     decimal_separator: str = ","  # Specify the decimal separator
     date_columns_to_parse: Optional[List[str]] = None  # Specify the date columns to parse
     import_only_defined_columns: bool = True  # Specify if only defined columns should be imported
-    encoding: str = "utf-8", # Specify the encoding of the file
-    slownik_cfgs_types:List[SlownikCfg] = field(default_factory=list)
+    encoding: str = ("utf-8",)  # Specify the encoding of the file
+    slownik_cfgs_types: List[ENUM.SlownikType] = field(default_factory=list)
+    add_file_name: bool = False
 
     def add_column(self, name_org: str, name_mod: str, data_type: Optional[str] = None) -> None:
         column_def = columnDef(name_org, name_mod, data_type)
@@ -30,7 +29,7 @@ class DfProcessorConfig:
 
         match self.df_processor_type:
             case ENUM.DfProcessorType.HISTORY_ORG:
-                self.add_column("Channel", "channelOrg")
+                self.add_column("Channel", "channel_org")
                 self.add_column("Date", "xDate")  # "Datetime64[ns]")
                 self.add_column("Time", "xTime")  # , "Datetime64[ns]")
                 self.add_column("Prog Campaign", "programme")
@@ -38,13 +37,13 @@ class DfProcessorConfig:
             case ENUM.DfProcessorType.BOOKING_POLSAT:
                 self.add_column("", "CopyLength")  # "Datetime64[ns]")
                 self.add_column("", "dateTime")
-                self.add_column("", "channelOrg")
+                self.add_column("", "channel_org")
                 self.add_column("", "ratecard")
                 self.add_column("", "blockId")
                 self.add_column("", "subcampaign_org")
             case ENUM.DfProcessorType.SCHEDULE:
                 self.add_column("blockId", "blockId")
-                self.add_column("channel", "channel")
+                self.add_column("channel", "channel_org")
                 self.add_column("programme", "programme")
                 self.add_column("blockType_org", "blockType_org")
                 self.add_column("blockType_mod", "blockType_mod")
@@ -63,7 +62,6 @@ class DfProcessorConfig:
                 self.add_column("grpTg_98", "grpTg_98")
                 self.add_column("grpTg_99", "grpTg_99")
                 self.add_column("positionCode", "positionCode")
-                self.add_column("scheduleInfo", "scheduleInfo")
             case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
                 # self.add_column("Channel", "channel")
                 self.add_column("ID Bloku", "blockId")
@@ -71,10 +69,10 @@ class DfProcessorConfig:
                 self.add_column("Godzina", "xTime")
                 self.add_column("Nazwa", "programme")
                 self.add_column("Spot price", "ratecard")
+            case ENUM.DfProcessorType.SCHEDULE_INFO:
+                self.add_column("scheduleInfo", "scheduleInfo")
             case _:
-                    raise ValueError(f"Wrong df_processor_type: {self.df_processor_type}")
-
-
+                raise ValueError(f"Wrong df_processor_type: {self.df_processor_type}")
 
 
 def get_df_processor_config(df_processor_type: ENUM.DfProcessorType):
@@ -87,7 +85,7 @@ def get_df_processor_config(df_processor_type: ENUM.DfProcessorType):
                 0,
                 ENUM.FileType.XLSX,
                 import_only_defined_columns=False,
-                slownik_cfgs_types=[ENUM.SlownikType.SUBCAMPAIGNS, ENUM.SlownikType.CHANNELS]
+                slownik_cfgs_types=[ENUM.SlownikType.SUBCAMPAIGNS, ENUM.SlownikType.CHANNELS],
             )
         case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
             config = DfProcessorConfig(
@@ -95,20 +93,29 @@ def get_df_processor_config(df_processor_type: ENUM.DfProcessorType):
                 0,
                 ENUM.FileType.XLSX,
                 import_only_defined_columns=True,
-                slownik_cfgs_types=[ENUM.SlownikType.WOLNE_CZASY_LENGTHS, ENUM.SlownikType.CHANNELS]
+                slownik_cfgs_types=[ENUM.SlownikType.WOLNE_CZASY_LENGTHS, ENUM.SlownikType.CHANNELS],
+                add_file_name=True,
             )
         case ENUM.DfProcessorType.SCHEDULE:
             config = DfProcessorConfig(
-                    df_processor_type,
-                    0,
-                    ENUM.FileType.CSV,
-                    import_only_defined_columns=False ,
-                    date_columns_to_parse=["xDate"],
-                    date_format="%Y-%m-%d %H:%M:%S",
-                    column_separator=";",
-                    decimal_separator=",",
-                    encoding="utf-8"
+                df_processor_type,
+                0,
+                ENUM.FileType.CSV,
+                import_only_defined_columns=False,
+                date_columns_to_parse=["xDate"],
+                date_format="%Y-%m-%d %H:%M:%S",
+                column_separator=";",
+                decimal_separator=",",
+                encoding="utf-8",
             )
+        case ENUM.DfProcessorType.SCHEDULE_INFO:
+            config = DfProcessorConfig(
+                df_processor_type,
+                0,
+                ENUM.FileType.CSV,
+                import_only_defined_columns=True
+            )
+
 
         case _:
             raise ValueError(f"Wrong df_processor_type: {df_processor_type}")

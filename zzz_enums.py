@@ -63,8 +63,9 @@ class ExceptionType(Enum):
 class DfProcessorType(Enum):
     FREE_TIMES_POLSAT = "Free times Polsat"
     HISTORY_ORG = "History"
-    BOOKING_POLSAT = "Schedule Polsat"
+    BOOKING_POLSAT = "Booking Polsat"
     SCHEDULE = "SCHEDULE"
+    SCHEDULE_INFO = "Schedule info"
 
 
 class CannonColumnsSet(Enum):
@@ -79,6 +80,7 @@ class CannonColumnsSet(Enum):
 class FileType(Enum):
     XLSX = ".xlsx"
     CSV = ".csv"
+
 
 class SlownikType(Enum):
     CHANNELS = "channels"

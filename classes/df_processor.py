@@ -120,6 +120,8 @@ class DfProcessor:
             case ENUM.DfProcessorType.SCHEDULE:
                 pass
             case ENUM.DfProcessorType.FREE_TIMES_POLSAT:
+                df["channel_org"] = df["file_name"]
+            case ENUM.DfProcessorType.SCHEDULE_INFO:
                 pass
             case _:
                 raise NotImplementedError
@@ -129,7 +131,10 @@ class DfProcessor:
     @property
     def get_df(self) -> pd.DataFrame:
         df: pd.DataFrame = self._get_df_org()           # bierze albo wszystkie albo zdefiniowane w zależność od cfg.import_only_defined_columns
+        if self.cfg.add_file_name:
+            df["file_name"] = self.get_file_name
         df =  self._transform_before_check_header(df)
+
         self._rename_columns(df)
         self._process_slowniki(df)
         self._check_mod_columns(df)

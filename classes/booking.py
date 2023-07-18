@@ -9,7 +9,7 @@ from classes.df_processor import get_df_processor
 from classes.exceptions import MyProgramException
 from classes.iData_framable import iDataFrameable
 from classes.merger import get_merger
-from zzz_ordersTools import SgltChannelMapping
+from classes.sglt_project_cfg import SgltProjectCfg
 from zzz_tools import Collection
 from zzz_tools import getTimebandId, check_cannon_columns
 
@@ -84,6 +84,7 @@ def get_df_booking_org(supplier: ENUM.Supplier, booking_quality: ENUM.BookingQua
     return df_booking_org
 
 
+
 def get_booking(
     supplier: ENUM.Supplier,
     booking_quality: ENUM.BookingQuality,
@@ -93,8 +94,8 @@ def get_booking(
     df_booking = get_merger(
         "Merge channels",
         df_booking_org,
-        SgltChannelMapping.get_df,
-        "channelOrg",
+        SgltProjectCfg().channel_mapping_df,
+        "channel_org",
         right_on="channelPossibleName",
         exception_type_unjoined=ENUM.ExceptionType.MERGER_ILLEGAL_CHANNELS_IN_BOOKING,
     ).return_merged_df()

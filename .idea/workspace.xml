@@ -6,27 +6,22 @@
   <component name="BlackConnectSettings" port="45490" lineLength="120" triggerOnEachSave="true" triggerOnReformat="true" />
   <component name="ChangeListManager">
     <list default="true" id="364160d3-0f72-4b22-ba95-24e88e935ebd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/classes/df_processor_cfg.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/classes/slownik.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/classes/slownik_cfg.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/ConfigObjectsJsons/json channels.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/ConfigObjectsJsons/json copy lengths.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict channels.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict free time lenghts.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict subcampaigns.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/classes/sglt_project_cfg.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/existing dict channels.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/existing dict subcampaigns.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/existing dict wolne_czasy_lengths.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/_main_matching.py" beforeDir="false" afterPath="$PROJECT_DIR$/_main_matching.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_matching_algorithm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_matching_algorithm.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/booking.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/booking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/df_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/df_processor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/file.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/file.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/folder.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/folder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/df_processor_cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/df_processor_cfg.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/free_times.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/free_times.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes/matching_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/matching_processor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes/schedule.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/schedule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/dict subcampaignss.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/json channels.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/json copy lengths.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/slownik.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/slownik.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes/slownik_cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes/slownik_cfg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict channels.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict free time lenghts.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/source/Slowniki/ExistingDicts/dict subcampaigns.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/zzz_const.py" beforeDir="false" afterPath="$PROJECT_DIR$/zzz_const.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zzz_enums.py" beforeDir="false" afterPath="$PROJECT_DIR$/zzz_enums.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zzz_hardcoded_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/zzz_hardcoded_gui.py" afterDir="false" />
@@ -472,7 +467,8 @@
       <workItem from="1689240465747" duration="35782000" />
       <workItem from="1689501226035" duration="1394000" />
       <workItem from="1689502784914" duration="9000" />
-      <workItem from="1689522398067" duration="31266000" />
+      <workItem from="1689522398067" duration="31352000" />
+      <workItem from="1689683574146" duration="10838000" />
     </task>
     <task id="LOCAL-00001" summary="fghdfh">
       <created>1686065004210</created>
@@ -605,7 +601,15 @@
       <option name="project" value="LOCAL" />
       <updated>1689583109351</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="wywalone none">
+      <option name="closed" value="true" />
+      <created>1689610341143</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1689610341143</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -656,12 +660,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/zzz_ordersTools.py</url>
-          <line>160</line>
+          <line>138</line>
           <option name="timeStamp" value="95" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/zzz_tools.py</url>
-          <line>309</line>
+          <line>305</line>
           <option name="timeStamp" value="104" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -671,7 +675,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/classes/matching_processor.py</url>
-          <line>26</line>
+          <line>24</line>
           <option name="timeStamp" value="108" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -680,24 +684,24 @@
           <option name="timeStamp" value="115" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/classes/slownik.py</url>
-          <line>40</line>
-          <option name="timeStamp" value="117" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/classes/folder.py</url>
           <line>23</line>
           <option name="timeStamp" value="122" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/classes/df_processor_cfg.py</url>
-          <line>83</line>
+          <line>81</line>
           <option name="timeStamp" value="129" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/classes/df_processor.py</url>
-          <line>153</line>
-          <option name="timeStamp" value="131" />
+          <url>file://$PROJECT_DIR$/zzz_hardcoded_gui.py</url>
+          <line>14</line>
+          <option name="timeStamp" value="148" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/classes/free_times.py</url>
+          <line>71</line>
+          <option name="timeStamp" value="151" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -713,7 +717,7 @@
     <SUITE FILE_PATH="coverage/MnrwOrdersFlow$_main_orders.coverage" NAME="_main_orders Coverage Results" MODIFIED="1689583437316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/MnrwOrdersFlow$.coverage" NAME=" Coverage Results" MODIFIED="1689240779746" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/MnrwOrdersFlow$zzz_sandbox.coverage" NAME="zzz_sandbox Coverage Results" MODIFIED="1689420128808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/MnrwOrdersFlow$_main_matching__1_.coverage" NAME="_main_matching (1) Coverage Results" MODIFIED="1689610320427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/MnrwOrdersFlow$_main_matching__1_.coverage" NAME="_main_matching (1) Coverage Results" MODIFIED="1689711615823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/MnrwOrdersFlow$a_main_functions.coverage" NAME="_main_matching Coverage Results" MODIFIED="1689524539204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Mnrw_OrdersFlow$main.coverage" NAME="main Coverage Results" MODIFIED="1680877121827" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/MnrwOrdersFlow$b_generate_orders.coverage" NAME="b_generate_orders Coverage Results" MODIFIED="1689510958668" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

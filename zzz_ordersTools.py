@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import List, Dict
 
 import pandas as pd
-from openpyxl.compat.singleton import Singleton
 
 import zzz_const as CONST
 import zzz_enums as ENUM
@@ -115,26 +114,6 @@ def get_channels_mapping_df() -> pd.DataFrame:
     return df
 
 
-class SgltChannelMapping(metaclass=Singleton):
-    df: pd.DataFrame
-
-    @classmethod
-    @property
-    def get_df(cls) -> pd.DataFrame:
-        if not hasattr(cls, "df") or (hasattr(cls, "df") and cls.df is None):
-            cls.df = get_channels_mapping_df()
-        return cls.df
-
-    @classmethod
-    @property
-    def get_channel_supplier_dict(cls) -> Dict[str, str]:
-        if not hasattr(cls, "channel_supplier_dict") or (
-            hasattr(cls, "channel_supplier_dict") and cls.channel_supplier_dict is None
-        ):
-            cls.channel_supplier_dict = cls.get_df.set_index("channel")["supplier"].to_dict()
-        return cls.channel_supplier_dict
-
-
 def get_copy_indexes_df() -> pd.DataFrame:
     json_copyLengths_path = CONST.PATH_JSON_COPY_INDEXES
 
@@ -144,7 +123,6 @@ def get_copy_indexes_df() -> pd.DataFrame:
     # Create a DataFrame from the JSON data
     df = pd.DataFrame(data["CopyLengths"])
     return df
-
 
 def check_time_space_consistency(df_booking: pd.DataFrame, df_schedule: pd.DataFrame, merge_caption: str):
     get_merger(

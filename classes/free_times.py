@@ -9,7 +9,8 @@ from classes.channel_break import ChannelBreak
 from classes.df_processor import get_df_processor
 from classes.exceptions import MyProgramException
 from classes.folder import get_folder
-from zzz_ordersTools import SgltChannelMapping
+from classes.merger import get_merger
+from classes.sglt_project_cfg import SgltProjectCfg
 from zzz_tools import get_union_of_dfs
 
 
@@ -65,8 +66,9 @@ def get_free_times(
 ) -> FreeTimes:
 
     df_org = get_df_free_times_org(supplier, free_times_quality)
-    df_channel_mapping = SgltChannelMapping.get_df
-    # df = get_merger("Free times channel mapping", df_org, df_channel_mapping, "channel_org").get_df
+    df_channel_mapping = SgltProjectCfg().channel_mapping_df
+    df = get_merger("Free times channel mapping", df_org, df_channel_mapping, "channel_org", right_on="channelPossibleName").return_merged_df
+    raise   NotImplementedError("TODO: channel breaks")
     channel_breaks = None
     # free_times = FreeTimes(df, channel_breaks)
     # return free_times

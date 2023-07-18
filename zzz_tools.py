@@ -11,7 +11,6 @@ import zzz_const as CONST
 import zzz_enums as ENUM
 from classes.exceptions import MyProgramException
 from classes.file import File
-from classes.folder import get_folder, Folder
 from classes.result_folder import ResultFolder
 
 
@@ -67,11 +66,11 @@ class Collection(dict):
 
 
 def get_cannon_columns_set(cannon_columns_set: ENUM.CannonColumnsSet) -> Set[str]:
-    set_booking_org = set("blockId dateTime channelOrg ratecard".split())
+    set_booking_org = set("blockId dateTime channel_org ratecard".split())
     set_booking_processed = set_booking_org | set("channel supplier channelGroup tbId subcampaign_org".split())
     set_scheduleMatching = set("blockId dateTime channel ratecard wantedness tbId1 tbId2 bookedness".split())
     set_scheduleOrg = set(
-        "blockId	channel	programme blockType_org	blockType_mod xDate	xTime ratecard freeTime	week timeband wantedness bookedness	eqPriceNet grpTg_01 grpTg_02 grpTg_50 grpTg_98 grpTg_99 positionCode scheduleInfo".split()
+        "blockId	channel	programme blockType_org	blockType_mod xDate	xTime ratecard freeTime	week timeband wantedness bookedness	eqPriceNet grpTg_01 grpTg_02 grpTg_50 grpTg_98 grpTg_99 positionCode".split()
     )
     set_scheduleFull = set(set_scheduleOrg | set_scheduleMatching)
 
@@ -294,10 +293,6 @@ def is_enum_value(my_string: str, my_enum: Type[Enum]) -> bool:
     return ok
 
 
-
-
-
-
 def get_union_of_dfs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     if not all(df.columns.tolist() == dfs[0].columns.tolist() for df in dfs):
         raise ValueError("Columns of the dataframes are different")
@@ -307,7 +302,7 @@ def get_union_of_dfs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     return union_df
 
 
-def setize(data_structure)->Set:
+def setize(data_structure) -> Set:
     len_org = len(data_structure)
     my_set = set(data_structure)
     len_distinct = len(my_set)
@@ -315,8 +310,8 @@ def setize(data_structure)->Set:
     if len_org != len_distinct:
         raise ValueError("Duplicate values found")
     else:
+        return my_set
 
-        return  my_set
 
 def merge_dicts(dict1: Dict, dict2: Dict) -> Dict:
     if any(key in dict1 for key in dict2):
@@ -325,30 +320,18 @@ def merge_dicts(dict1: Dict, dict2: Dict) -> Dict:
     return result
 
 
-def get_values_from_txt(file_path:str)->List[str]:
+def get_values_from_txt(file_path: str) -> List[str]:
     with open(file_path, "r", encoding=CONST.ENCODING) as file:
         values = file.read().splitlines()
     return values
 
-def print_values_to_txt(values:collections.abc.Iterable, file_path:str)->File:
+
+def print_values_to_txt(values: collections.abc.Iterable, file_path: str) -> File:
     with open(file_path, "w", encoding=CONST.ENCODING) as file:
         for item in values:
             file.write(str(item) + "\n")
 
 
-def print_mod_values(mod_values: collections.abc.Iterable, slownik_name: str) -> File:
-    file_path = get_mod_values_file_path(slownik_name)
-    print_values_to_txt(mod_values, file_path)
-
-
-def build_path(part1:any, part2:any) -> str:
+def build_path(part1: any, part2: any) -> str:
     path = os.path.join(str(part1), part2)
     return path
-def get_mod_values_folder()->Folder:
-    mod_values_folder = get_folder(CONST.PATH_SLOWNIKI_MOD_VALUES_FOLDER)
-    return mod_values_folder
-def get_mod_values_file_path(slownik_name:str) -> str:
-    folder = get_mod_values_folder()
-    file_name = "mod values " + slownik_name + ".txt"
-    file_path = build_path(folder, file_name)
-    return file_path

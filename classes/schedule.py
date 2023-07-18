@@ -1,5 +1,4 @@
 import dataclasses
-import json
 from typing import Dict, List
 
 import pandas as pd
@@ -12,16 +11,14 @@ from classes.exceptions import MyProgramException
 from classes.iData_framable import iDataFrameable
 from classes.merger import get_merger
 from classes.schedule_break import ScheduleBreak
+from classes.sglt_project_cfg import SgltProjectCfg
 from classes.status_info import StatusInfo
-from classes.subcampaign import Subcampaign
 from classes.timeband import Timeband
 from classes.wantedness_info import WantednessInfo
-from zzz_ordersTools import SgltChannelMapping
 from zzz_tools import check_cannon_columns, Collection, getTimebandId, get_substring_between_parentheses, export_df
 
 
 def getProcessedScheduleDf(df_scheduleOrg: pd.DataFrame, df_channelsMapping: pd.DataFrame) -> pd.DataFrame:
-    df_scheduleOrg.rename(columns={"channel": "channel_org"}, inplace=True)
     df_scheduleProcessed = get_merger(
         "Processed schedule",
         df_scheduleOrg,
@@ -50,12 +47,12 @@ def getProcessedScheduleDf(df_scheduleOrg: pd.DataFrame, df_channelsMapping: pd.
     check_cannon_columns(df_scheduleProcessed, ENUM.CannonColumnsSet.ScheduleProcessedFull, drop_excess_columns=True)
     return df_scheduleProcessed
 
+
 @dataclasses.dataclass
 class Schedule(iDataFrameable):
     source_path: str
     df: pd.DataFrame
     schedule_breaks: Collection[ScheduleBreak]
-    schedule_info: str
 
     @property
     def get_timebands_dict(self) -> Dict[str, Timeband]:
@@ -76,20 +73,6 @@ class Schedule(iDataFrameable):
                 timebands_dict[schedule_break.tbId2] = timeband2
             timeband2.add_schedule_break(schedule_break)
         return timebands_dict
-
-    @property
-    def get_subcampaigns_dict(self) -> dict[Subcampaign]:
-        shedule_info_json = json.loads(self.schedule_info)
-        subcampaign_json = shedule_info_json["campaingNames"]
-        subcampaigns = {}
-        for subcampaigns_json in subcampaign_json:
-            value = subcampaigns_json["value"]
-            copy_name = subcampaigns_json["name"]
-            length = subcampaigns_json["length"]
-            subcampaign = Subcampaign(value, copy_name, length)
-            subcampaigns[subcampaign.get_hash] = subcampaign
-        return subcampaigns
-
 
 
 
@@ -196,11 +179,9 @@ def get_schedule_breaks(df: pd.DataFrame) -> Collection:
 def get_schedule(schedule_type: ENUM.ScheduleType) -> Schedule:
     path_schedule = CONST.get_path_schedule(schedule_type)
     df_scheduleOrg = get_df_processor(ENUM.DfProcessorType.SCHEDULE, path_schedule).get_df
-    schedule_info = df_scheduleOrg["scheduleInfo"][0]
-    df_scheduleProcessed = getProcessedScheduleDf(df_scheduleOrg, SgltChannelMapping.get_df)
+    df_scheduleProcessed = getProcessedScheduleDf(df_scheduleOrg, SgltProjectCfg().channel_mapping_df)
 
     schedule_breaks = get_schedule_breaks(df_scheduleProcessed)
 
-
-    schedule = Schedule(path_schedule, df_scheduleProcessed, schedule_breaks, schedule_info)
+    schedule = Schedule(path_schedule, df_scheduleProcessed, schedule_breaks)
     return schedule
