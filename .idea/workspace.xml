@@ -106,7 +106,7 @@
       <method v="2" />
     </configuration>
     <configuration name="_main_matching (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="MnrwOrdersFlow" />
+      <module name="VMOpt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -128,7 +128,7 @@
       <method v="2" />
     </configuration>
     <configuration name="_main_matching" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="MnrwOrdersFlow" />
+      <module name="VMOpt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -150,7 +150,7 @@
       <method v="2" />
     </configuration>
     <configuration name="_main_orders" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="MnrwOrdersFlow" />
+      <module name="VMOpt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -216,7 +216,7 @@
       <method v="2" />
     </configuration>
     <configuration name="a_matching (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="MnrwOrdersFlow" />
+      <module name="VMOpt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -283,7 +283,7 @@
       <method v="2" />
     </configuration>
     <configuration name="schedule" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="MnrwOrdersFlow" />
+      <module name="VMOpt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
