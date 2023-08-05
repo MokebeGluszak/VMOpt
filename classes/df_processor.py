@@ -7,6 +7,7 @@ import zzz_enums as enum
 from classes.df_processor_cfg import DfProcessorConfig, get_df_processor_config
 from classes.merger import get_merger
 from classes.slownik import get_slownik
+
 from zzz_tools import get_float
 
 
@@ -33,8 +34,7 @@ class DfProcessor:
     def _get_dtype(self) -> dict:
         dtype = {}
         for column_def in self.cfg.column_defs.values():
-            if column_def.data_type is not None:
-                dtype[column_def.column_org] = column_def.data_type
+            dtype[column_def.column_org] = column_def.data_type.value
         return dtype
 
     def _get_df_org_xlsx(self) -> pd.DataFrame:
@@ -45,12 +45,10 @@ class DfProcessor:
         else:
             column_orgs = None
         dtype = self._get_dtype
-
+        # df_test = pd.read_excel(self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs,  nrows=1)
         for row in header_rows:
             try:
-                df_test = pd.read_excel(
-                    self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, nrows=1
-                )
+                df_test = pd.read_excel(self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, nrows=1)
                 break
             except:
                 continue

@@ -4,6 +4,7 @@ from typing import List, Optional, Any, Dict
 import zzz_enums as enum
 from classes.column_def import columnDef
 
+from zzz_tools import Collection
 
 
 @dataclass
@@ -20,57 +21,30 @@ class DfProcessorConfig:
     slownik_cfgs_types: List[enum.SlownikType] = field(default_factory=list)
     add_file_name: bool = False
 
-    def add_column(self, name_org: str, name_mod: str, data_type: Optional[str] = None) -> None:
+    def add_column(self, name_org: str, name_mod: str, data_type: enum.DataType) -> None:
         column_def = columnDef(name_org, name_mod, data_type)
-        self.column_defs[name_mod] = column_def
+        self.column_defs.add (column_def, column_def.column_mod)
 
     def define_columns(self) -> None:
-        self.column_defs: Dict[str, columnDef] = {}
+        self.column_defs: Collection = Collection()
 
         match self.df_processor_type:
-            case enum.DfProcessorType.HISTORY_ORG:
-                self.add_column("Channel", "channel_org")
-                self.add_column("Date", "xDate")  # "Datetime64[ns]")
-                self.add_column("Time", "xTime")  # , "Datetime64[ns]")
-                self.add_column("Prog Campaign", "programme")
-                self.add_column("Cost", "ratecard")
-            case enum.DfProcessorType.BOOKING_POLSAT:
-                self.add_column("", "CopyLength")  # "Datetime64[ns]")
-                self.add_column("", "dateTime")
-                self.add_column("", "channel_org")
-                self.add_column("", "ratecard")
-                self.add_column("", "blockId")
-                self.add_column("", "subcampaign_org")
+
             case enum.DfProcessorType.SCHEDULE:
-                self.add_column("blockId", "blockId")
-                self.add_column("channel", "channel_org")
-                self.add_column("programme", "programme")
-                self.add_column("blockType_org", "blockType_org")
-                self.add_column("blockType_mod", "blockType_mod")
-                self.add_column("xDate", "xDate")
-                self.add_column("xTime", "xTime")
-                self.add_column("ratecard", "ratecard")
-                self.add_column("freeTime", "freeTime")
-                self.add_column("week", "week")
-                self.add_column("timeband", "timeband")
-                self.add_column("wantedness", "wantedness")
-                self.add_column("bookedness", "bookedness")
-                self.add_column("eqPriceNet", "eqPriceNet")
-                self.add_column("grpTg_01", "grpTg_01")
-                self.add_column("grpTg_02", "grpTg_02")
-                self.add_column("grpTg_50", "grpTg_50")
-                self.add_column("grpTg_98", "grpTg_98")
-                self.add_column("grpTg_99", "grpTg_99")
-                self.add_column("positionCode", "positionCode")
-            case enum.DfProcessorType.FREE_TIMES_POLSAT:
-                # self.add_column("Channel", "channel")
-                self.add_column("ID Bloku", "blockId")
-                self.add_column("Data", "xDate")
-                self.add_column("Godzina", "xTime")
-                self.add_column("Nazwa", "programme")
-                self.add_column("Spot price", "ratecard")
-            case enum.DfProcessorType.SCHEDULE_INFO:
-                self.add_column("scheduleInfo", "scheduleInfo")
+
+                self.add_column("blockId", "blockId", enum.DataType.STR)
+                self.add_column("channel", "channel", enum.DataType.STR)
+                self.add_column("progBefore", "progBefore", enum.DataType.STR)
+                self.add_column("progAfter", "progAfter", enum.DataType.STR)
+                self.add_column("copyNumber", "copyNumber", enum.DataType.INT)
+                self.add_column("xDateTime", "xDateTime", enum.DataType.DATETIME64)
+                self.add_column("ratecard", "ratecard", enum.DataType.INT)
+                self.add_column("grp", "grp", enum.DataType.FlOAT)
+
+                self.add_column("week", "week", enum.DataType.STR)
+                self.add_column("channelGroup", "channelGroup", enum.DataType.STR)
+                self.add_column("timeband", "timeband", enum.DataType.STR)
+            # week	channelGroup	timeband
             case _:
                 raise ValueError(f"Wrong df_processor_type: {self.df_processor_type}")
 
@@ -99,14 +73,8 @@ def get_df_processor_config(df_processor_type: enum.DfProcessorType):
         case enum.DfProcessorType.SCHEDULE:
             config = DfProcessorConfig(
                 df_processor_type,
-                0,
-                enum.FileType.CSV,
-                import_only_defined_columns=False,
-                date_columns_to_parse=["xDate"],
-                date_format="%Y-%m-%d %H:%M:%S",
-                column_separator=";",
-                decimal_separator=",",
-                encoding="utf-8",
+                "schedule",
+                enum.FileType.XLSX
             )
         case enum.DfProcessorType.SCHEDULE_INFO:
             config = DfProcessorConfig(

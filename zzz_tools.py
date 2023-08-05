@@ -326,3 +326,18 @@ def print_values_to_txt(values: collections.abc.Iterable, file_path: str) -> Fil
 def build_path(part1, part2) -> str:
     path:str = str(os.path.join(str(part1), part2))
     return path
+
+class Collection(dict):
+    def add(self, item, key: Union[str, int, None] = None):
+        if key is None:
+            key = len(self) + 1
+        elif key in self:
+            raise KeyError(f'Key "{key}" already exists in collection')
+        else:
+            self[key] = item
+
+    def __iter__(self):
+        return iter(self.values())
+
+    def get_first_value(self):
+        return next(iter(self.values()))

@@ -32,16 +32,3 @@ PODEJRZANY_BLOK_ID: int = 15107428739
 ENCODING = "utf-8"
 
 
-def get_path_schedule(schedule_type: ScheduleType) -> str:
-    path: str
-    if schedule_type == ScheduleType.OK_4CHANNELS_CLEAR:
-        path = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source\1 schedule 2022-10-06 112529 Schedule czysta.txt"
-    elif schedule_type == ScheduleType.ILLEGAL_CHANNELS:
-        path = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source\1a schedule 2022-10-06 112529 Schedule czysta - wrong channels.txt"
-    elif schedule_type == ScheduleType.OK_4CHANNELS_1WANTED:
-        path = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\project\source\1b schedule 2022-10-06 112529 Schedule wanted.txt"
-
-    else:
-        raise ValueError("Wrong schedule type")
-
-    return path
