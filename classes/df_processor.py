@@ -143,7 +143,7 @@ class DfProcessor:
             assert new_name in df.columns, f"Column '{new_name}' does not exist in the DataFrame."
 
     def _process_slowniki(self, df):
-        print(self.cfg.df_processor_type.value)
+        # print(self.cfg.df_processor_type.value)
         for slownik_cfg in self.cfg.slownik_cfgs_types:
             slownik = get_slownik(slownik_cfg, df)
 
