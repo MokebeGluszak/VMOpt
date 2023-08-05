@@ -2,9 +2,12 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from classes.optimisation_item import OptimisationItem
+
 import zzz_enums as enums
 from classes.quality_constraints_def import  QualityConstraintsDef
+from classes.quantity_constraint import QuantityConstraint
+
+
 def get_optimisation_def(optimisation_def_type:enums.OptimisationDefType):
     with open(optimisation_def_type.value, 'r') as file:
         json_data = json.load(file)
@@ -22,10 +25,10 @@ def get_optimisation_def(optimisation_def_type:enums.OptimisationDefType):
 
     optimisation_def = OptimisationDef(
         desired_grp=json_data["DesiredGRP"],
-        channels=[OptimisationItem(ch['name'], ch['minGrp'],ch['allowed'], enums.OptimisationItemType.CHANNEL) for ch in planning_objects_dict["channels"]],
-        channelGroups=[OptimisationItem(cg['name'], cg['minGrp'],cg['allowed'], enums.OptimisationItemType.CHANNELGROUP) for cg in planning_objects_dict["channelGroups"]],
-        timebands=[OptimisationItem(tb['name'], tb['minGrp'],tb['allowed'], enums.OptimisationItemType.TIMEBAND) for tb in planning_objects_dict["timebands"]],
-        weeks=[OptimisationItem(w['name'], w['minGrp'], w['allowed'], enums.OptimisationItemType.WEEK) for w in planning_objects_dict["weeks"]],
+        channels=[QuantityConstraint(ch['name'], ch['minGrp'], ch['allowed'], enums.QuantityConstraintType.CHANNEL) for ch in planning_objects_dict["channels"]],
+        channelGroups=[QuantityConstraint(cg['name'], cg['minGrp'], cg['allowed'], enums.QuantityConstraintType.CHANNELGROUP) for cg in planning_objects_dict["channelGroups"]],
+        timebands=[QuantityConstraint(tb['name'], tb['minGrp'], tb['allowed'], enums.QuantityConstraintType.TIMEBAND) for tb in planning_objects_dict["timebands"]],
+        weeks=[QuantityConstraint(w['name'], w['minGrp'], w['allowed'], enums.QuantityConstraintType.WEEK) for w in planning_objects_dict["weeks"]],
         quality_constraints_def=quality_constraints_def,
         banned_blockd_ids=json_data["bannedBlockIds"]
     )
@@ -33,12 +36,16 @@ def get_optimisation_def(optimisation_def_type:enums.OptimisationDefType):
 @dataclass
 class OptimisationDef():
     desired_grp:float
-    channels: List[OptimisationItem]
-    channelGroups:List[OptimisationItem]
-    timebands:List[OptimisationItem]
-    weeks:List[OptimisationItem]
+    channels: List[QuantityConstraint]
+    channelGroups:List[QuantityConstraint]
+    timebands:List[QuantityConstraint]
+    weeks:List[QuantityConstraint]
     quality_constraints_def:QualityConstraintsDef
     banned_blockd_ids:List[str]
     @property
-    def optimisation_items_all(self):
+    def quantity_constraints_all(self)->List[QuantityConstraint]:
         return self.channels + self.channelGroups + self.timebands + self.weeks
+
+    @property
+    def quantity_constraints_valid(self)->List[QuantityConstraint]:
+        return [item for item in self.quantity_constraints_all if item.min_grp > 0]

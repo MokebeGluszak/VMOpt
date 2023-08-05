@@ -8,7 +8,9 @@ import zzz_enums as enum
 from classes.df_processor import get_df_processor
 from classes.exceptions import MyProgramException
 from classes.iData_framable import iDataFrameable
+from classes.log import log_header, log
 from classes.merger import get_merger
+from classes.quantity_constraint import QuantityConstraint
 from classes.schedule_break import ScheduleBreak
 from classes.sglt_project_cfg import SgltProjectCfg
 from classes.status_info import StatusInfo
@@ -40,27 +42,44 @@ class Schedule(iDataFrameable):
         export_path = export_df(df, "schedule - minerwa", file_type=enum.FileType.CSV)
         return export_path
 
+    def filter_disallowed_items(self, optimisation_items:List[QuantityConstraint]):
+        log_header("Processing disallowed items")
+        count_start: int = len(self.df)
+        for optimisation_item in optimisation_items:
+            if not optimisation_item.allowed:
+                count_before: int = len(self.df)
+                self.df = self.df[self.df[optimisation_item.type.value] != optimisation_item.name]
+                count_after: int = len(self.df)
+                log( f"Removed {count_before - count_after} {optimisation_item.type} {optimisation_item.name} from schedule")
+        log (f"\nTotal removed by dissaloved items:  {count_start - count_after} from {count_start} blocks")
 
-def get_wantedness_info_from_row(wantedness) -> WantednessInfo:
-    is_wanted: bool
-    subcampaign: int
-    origin: enum.Origin
 
-    if wantedness == "NotWanted":
-        is_wanted = False
-        subcampaign = -1
-        origin = enum.Origin.NotWanted
-    elif wantedness.startswith("Wanted"):
-        is_wanted = True
-        sub_string = get_substring_between_parentheses(wantedness)
-        subcampaign = int(get_substring_between_parentheses(sub_string))
-        origin_str = sub_string.split(",")[0].strip()
-        origin = enum.Origin.get_from_str(origin_str)
-    else:
-        raise MyProgramException(f"Wrong wantedness: {wantedness}")
+    def filter_banned_blocks(self,  banned_blocks: list[str]):
+        log_header("Filtering banned blocks")
+        count_before = len(self.df)
+        self.df = self.df[~self.df['blockId'].isin(banned_blocks)]
+        count_after = len(self.df)
+        log(f"Removed {count_before - count_after} banned blocks from {count_before}")
 
-    wantedness_info: WantednessInfo = WantednessInfo(is_wanted=is_wanted, subcampaign=subcampaign, origin=origin)
-    return wantedness_info
+
+    def filter_0(self):
+        log_header("Filtering 0 grp")
+        count_before = len(self.df)
+        self.df = self.df[self.df['grp'] > 0]
+        count_after = len(self.df)
+        log(f"Removed {count_before - count_after} blocks with grp =0 from {count_before}")
+
+
+    def filter_min_grp(self,  min_grp: float):
+        log_header("Filtering min grp")
+        count_before = len(self.df)
+        self.df = self.df[self.df['grp'] >= min_grp]
+        count_after = len(self.df)
+        log(f"Removed {count_before - count_after} blocks with less than {min_grp} grp from {count_before}")
+
+    def tag_block_constraints(self, optimisation_items_valid:List[QuantityConstraint]):
+        for optimisation_item in optimisation_items_valid:
+            self.df[optimisation_item.column_name] = self.df[optimisation_item.type.value] == optimisation_item.name
 
 
 def get_is_booked(boookedness: str) -> bool:
@@ -91,3 +110,5 @@ def get_schedule(schedule_type: enum.ScheduleType) -> Schedule:
 
     schedule = Schedule(schedule_type, df_schedule)
     return schedule
+
+
