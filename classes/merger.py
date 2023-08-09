@@ -97,10 +97,11 @@ class Merger:
             export_df(merged_df, "merged_df", enum.FileType.XLSX, export_folder_path=export_dir)
 
     def get_export_dir(self) -> Folder:
+        raise NotImplementedError
         # dir = ResultFolder().get_result_sub_dir(sub_folder_name=self.caption)
-        from classes.result_folder import SgltResultFolder
-        dir  = SgltResultFolder().get_subfolder(name=self.caption)
-        return dir
+        # from classes.result_folder import sgltResultFolder
+        # dir  = sgltResultFolder().get_subfolder(name=self.caption)
+        # return dir
 
     def return_merged_df(self) -> pd.DataFrame:
         try:

@@ -38,7 +38,7 @@ class DfProcessorConfig:
                 self.add_column("progAfter", "progAfter", enum.DataType.STR)
                 self.add_column("copyNumber", "copyNumber", enum.DataType.INT)
                 self.add_column("xDateTime", "xDateTime", enum.DataType.DATETIME64)
-                self.add_column("ratecard", "ratecard", enum.DataType.INT)
+                self.add_column("eqNetPrice", "eqNetPrice", enum.DataType.INT)
                 self.add_column("grp", "grp", enum.DataType.FlOAT)
 
                 self.add_column("week", "week", enum.DataType.STR)

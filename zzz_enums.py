@@ -53,12 +53,12 @@ class FreeTimesQuality(Enum):
 
 
 class OptimisationDefType(Enum):
-    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisation json ok.json"
+    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisation json 2023-08-08.json"
     INVALID_ITEMS = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisationJson ok.txttt"
 
 
 class ScheduleType(Enum):
-    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-07-27.xlsx"
+    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-08-08 1324.xlsx"
     SMALL = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-07-27 small.xlsx"
     ILLEGAL_CHANNELS = "Illegal channels"
     OK_4CHANNELS_1WANTED = "OK_4channels_1wanted"
@@ -111,6 +111,11 @@ class DataType(Enum):
     FlOAT = "float"
     STR = "str"
     BOOL = "bool"
-    DATETIME64 = "datetime64[ns]"
+    DATETIME64 = "datetime64[s]"
     DATE = "date"
     TIME = "time"
+
+class OptimisationStep(Enum):
+    Step1ShrConstraints = "Step1FulfillConstraints"
+    Step2Total =  "Step2Total"
+    Step3Decrement = "Step3Decrement"

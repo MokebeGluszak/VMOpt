@@ -10,6 +10,7 @@ from classes.exceptions import MyProgramException
 from classes.iData_framable import iDataFrameable
 from classes.log import log_header, log
 from classes.merger import get_merger
+from classes.optimisation_def import OptimisationDef
 from classes.quantity_constraint import QuantityConstraint
 from classes.schedule_break import ScheduleBreak
 from classes.sglt_project_cfg import SgltProjectCfg
@@ -22,6 +23,7 @@ from zzz_tools import check_cannon_columns, getTimebandId, get_substring_between
 @dataclasses.dataclass
 class Schedule(iDataFrameable):
     schedule_type: enum.ScheduleType
+    df_org: pd.DataFrame
     df: pd.DataFrame
 
     def load_breaks(self):
@@ -82,6 +84,13 @@ class Schedule(iDataFrameable):
             self.df[optimisation_item.column_name] = self.df[optimisation_item.type.value] == optimisation_item.name
 
 
+    def run_filters(self, optimisation_def:OptimisationDef):
+        self.filter_0()
+        self.filter_banned_blocks(optimisation_def.banned_blockd_ids)
+        self.filter_disallowed_items(optimisation_def.quantity_constraints_all)
+        self.filter_min_grp(optimisation_def.quality_constraints_def.minGrp)
+
+
 def get_is_booked(boookedness: str) -> bool:
     is_booked: bool
     if boookedness == "Booked":
@@ -104,11 +113,14 @@ def get_schedule_breaks(df: pd.DataFrame) -> Collection:
 
 def get_schedule(schedule_type: enum.ScheduleType) -> Schedule:
 
-    df_schedule = get_df_processor(enum.DfProcessorType.SCHEDULE, schedule_type.value).get_df
+    df_schedule_org = get_df_processor(enum.DfProcessorType.SCHEDULE, schedule_type.value).get_df
+    df_schedule = df_schedule_org.copy()
 
+    df_schedule.sort_values(by=['channel', 'xDateTime'], ascending=True, inplace=True)
+    df_schedule['available'] = 1
 
-
-    schedule = Schedule(schedule_type, df_schedule)
+    df_schedule.reset_index()
+    schedule = Schedule(schedule_type, df_schedule_org , df_schedule)
     return schedule
 
 

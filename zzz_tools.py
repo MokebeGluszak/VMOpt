@@ -1,4 +1,5 @@
 import collections
+import datetime
 import datetime as dt
 import functools
 import os
@@ -209,8 +210,8 @@ def export_df(
 ) -> str:
 
     if export_folder_path == "":
-        from classes.result_folder import SgltResultFolder
-        export_folder = SgltResultFolder.folder
+        from classes.result_folder import sgltResultFolder
+        export_folder = sgltResultFolder.folder
     else:
         export_folder = get_folder(export_folder_path)
 
@@ -341,3 +342,12 @@ class Collection(dict):
 
     def get_first_value(self):
         return next(iter(self.values()))
+
+def get_formatted_timediff(timediff:datetime.timedelta)->str:
+    # Extract hours, minutes, seconds, and milliseconds
+    seconds = timediff.seconds
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    milliseconds = timediff.microseconds // 1000
+    info = f" ({hours:02}:{minutes:02}:{seconds:02}.{round(milliseconds / 100)})"
+    return info

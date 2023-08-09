@@ -5,6 +5,7 @@ import pandas as pd
 
 import zzz_enums as enum
 from classes.df_processor_cfg import DfProcessorConfig, get_df_processor_config
+from classes.file import get_file
 from classes.merger import get_merger
 from classes.slownik import get_slownik
 
@@ -45,15 +46,16 @@ class DfProcessor:
         else:
             column_orgs = None
         dtype = self._get_dtype
-        # df_test = pd.read_excel(self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs,  nrows=1)
+        file = get_file(self.file_path)
+        # df_test = pd.read_excel(file.path, sheet_name=self.cfg.sheet_name,   nrows=1)
         for row in header_rows:
             try:
-                df_test = pd.read_excel(self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, nrows=1)
+                df_test = pd.read_excel(file.path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, nrows=1)
                 break
             except:
                 continue
         if df_test is None:
-            raise ValueError(f"Error opening dataframe from: {self.file_path}")
+            raise ValueError(f"Error opening dataframe from: {file.path}")
         else:
             df = pd.read_excel(
                 self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, dtype=dtype
