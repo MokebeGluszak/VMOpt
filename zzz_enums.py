@@ -53,22 +53,32 @@ class FreeTimesQuality(Enum):
 
 
 class OptimisationDefType(Enum):
-    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisation json 2023-08-08.json"
-    INVALID_ITEMS = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisationJson ok.txttt"
+    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisation json ok.json"
+    INVALID_ITEMS = (
+        r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisationJson ok.txttt"
+    )
 
 
 class ScheduleType(Enum):
     OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-08-08 1324.xlsx"
-    SMALL = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-07-27 small.xlsx"
+    SMALL = (
+        r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-07-27 small.xlsx"
+    )
     ILLEGAL_CHANNELS = "Illegal channels"
     OK_4CHANNELS_1WANTED = "OK_4channels_1wanted"
 
 
 class ExceptionType(Enum):
     MERGER_GENERIC = "There are unjoined values \n _UnjoinedValues_ \n in merge operation \n _Caption_  \n that are absent in schedule:"
-    MERGER_ILLEGAL_CHANNELS_IN_BOOKING = "Unknown channels \n _UnjoinedValues_ \n in imported booking'"
-    MERGER_ILLEGAL_CHANNELS_IN_SCHEDULE = "Unknown channels \n _UnjoinedValues_ \n in imported schedule'"
-    MERGER_ABSENT_CHANNELS = "There are channels in booking that are absent in schedule\n _UnjoinedValues_:"
+    MERGER_ILLEGAL_CHANNELS_IN_BOOKING = (
+        "Unknown channels \n _UnjoinedValues_ \n in imported booking'"
+    )
+    MERGER_ILLEGAL_CHANNELS_IN_SCHEDULE = (
+        "Unknown channels \n _UnjoinedValues_ \n in imported schedule'"
+    )
+    MERGER_ABSENT_CHANNELS = (
+        "There are channels in booking that are absent in schedule\n _UnjoinedValues_:"
+    )
 
 
 class QuantityConstraintType(Enum):
@@ -115,7 +125,13 @@ class DataType(Enum):
     DATE = "date"
     TIME = "time"
 
+
 class OptimisationStep(Enum):
     Step1ShrConstraints = "Step1FulfillConstraints"
-    Step2Total =  "Step2Total"
+    Step2Total = "Step2Total"
     Step3Decrement = "Step3Decrement"
+
+
+class BlockOperation(Enum):
+    PickUp = "PickUp"
+    Drop = "Drop"

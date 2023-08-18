@@ -32,6 +32,8 @@ class OptimisationItem():
     @property
     def weight_malus_current(self):
         val:float
-
-        val = self.weight * (self.quantity_constraint.min_grp - self.grp) / float(self.quantity_constraint.min_grp)
+        if self.is_fulfilled:
+            val = self.weight_malus * ( self.grp - self.quantity_constraint.min_grp ) / float(self.quantity_constraint.min_grp)
+        else:
+            raise Exception("weight_malus_current should not be called if is_fulfilled is False")
         return val
