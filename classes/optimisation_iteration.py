@@ -11,6 +11,8 @@ import numpy as np
 from classes.optimisation_item import OptimisationItem, get_optimisation_item
 from classes.quality_constraints_def import QualityConstraintsDef
 from classes.quantity_constraint import QuantityConstraint
+from classes.repetition_info import RepetitionInfo
+from classes.repetitions_checker import RepetitionsChecker, get_repetitions_checkers
 from classes.result_folder import export_file_path
 
 
@@ -24,23 +26,17 @@ class OptimisationIteration:
     desired_grp: float
     wanted_indexes: Set[int] = dataclasses.field(default_factory=set)
     constraint_column_names: List[str] = dataclasses.field(default_factory=list)
-    banned_progs_dict_before_total: dict = dataclasses.field(default_factory=dict)
-    banned_progs_dict_after_total: dict = dataclasses.field(default_factory=dict)
-    banned_progs_dict_before_weekly: dict = dataclasses.field(default_factory=dict)
-    banned_progs_dict_after_weekly: dict = dataclasses.field(default_factory=dict)
+    repetition_checkers: List[RepetitionsChecker] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
         self.df["available"] = 1
         self.constraint_column_names = [
             oi.quantity_constraint.column_name for oi in self.optimisation_items
         ]
+        self.repetition_checkers =  get_repetitions_checkers(self.quality_constraints_def.maxRepetitionsTotal,self.quality_constraints_def.maxRepetitionsWeekly, self.df)
 
 
 
-        self.banned_progs_dict_before_total = {prog: 0 for prog in self.df['progBefore'].unique()}
-        self.banned_progs_dict_after_total = {prog: 0 for prog in self.df['progAfter'].unique()}
-        self.banned_progs_dict_before_weekly = {prog: 0 for prog in self.df['progBeforeWeek'].unique()}
-        self.banned_progs_dict_after_weekly = {prog: 0 for prog in self.df['progAfterWeek'].unique()}
 
     def _recalculate_df_step1(self):
         bonuses: list[float] = [
@@ -122,7 +118,11 @@ class OptimisationIteration:
     def _tag_unavailable(self, min_cpp_index: int):
         # to taguje tylko te kture zostały zbanowane przy dobraniu tego spota
         banned_indexes_interval: list[int] = self._get_indexes_banned_by_spot_interval(min_cpp_index)
-        banned_indexes_repetition:list[int] = self._get_indexes_banned_by_repetitions(min_cpp_index)
+        prog_before:str = self.df.loc[min_cpp_index, "progBefore"]
+        prog_after:str = self.df.loc[min_cpp_index, "progAfter"]
+        week:str = self.df.loc[min_cpp_index, "week"]
+        repetition_info:RepetitionInfo = RepetitionInfo(prog_before, prog_after, week)
+        banned_indexes_repetition:list[int] = self._get_indexes_banned_by_repetitions(repetition_info)
 
         banned_indexes_all = banned_indexes_interval + banned_indexes_repetition
         self.df.loc[banned_indexes_all, "available"] = 0
@@ -197,9 +197,7 @@ class OptimisationIteration:
             min_cpp_index: int = self.df["cppOpt1"].idxmin()  # type: ignore
 
             self.pick_up_spot(min_cpp_index, copy_number, n)
-            self.change_constraints_fulfillment(
-                min_cpp_index, enums.BlockOperation.PickUp
-            )
+            self.change_constraints_fulfillment( min_cpp_index, enums.BlockOperation.PickUp)
             # if n == 500:
             #     pass
             constraints_fulfilled = self.get_constraints_fulfilled()
@@ -274,6 +272,23 @@ class OptimisationIteration:
         self.df.loc[index, "order"] = order
         self.df.loc[index, "copyNumber"] = copy_number
 
+    def check_constraints_prog_repetition(self, df: pd.DataFrame, column_name: str, weekly: bool):
+        filtered_df = df[df[column_name] != "UNKNOWN"]  # Filter out "UNKNOWN" values
+
+        if weekly:
+            repetitions_count = filtered_df.groupby([column_name, "week"]).size()
+            max_repetitions = self.quality_constraints_def.maxRepetitionsWeekly
+            max_repetitions = 1
+            time_unit = "week"
+        else:
+            repetitions_count = filtered_df[column_name].value_counts()
+            max_repetitions = self.quality_constraints_def.maxRepetitionsTotal
+            time_unit = "total"
+
+        not_fulfilled = repetitions_count[repetitions_count > max_repetitions]
+        if len(not_fulfilled) > 0:
+            raise Exception(f"{column_name} {time_unit} not fulfilled")
+
     def check_result(self, copy_number):
         filtered_df = self.df[self.df["copyNumber"] == copy_number]
 
@@ -290,58 +305,61 @@ class OptimisationIteration:
         not_fulfilled_min_grp = filtered_df[
             filtered_df["grp"] < self.quality_constraints_def.minGrp
         ]
-# prog after total
-        prog_after_counts = filtered_df[filtered_df['progAfter'] != "UNKNOWN"]["progAfter"].value_counts()
-        not_fulfilled_prog_after_total = prog_after_counts[prog_after_counts > self.quality_constraints_def.maxRepetitionsTotal]
-        if len(not_fulfilled_prog_after_total) > 0:
-            raise Exception(f"ProgAfter total not fulfilled")
-# prog before total
-        prog_before_counts = filtered_df[filtered_df['progBefore'] != "UNKNOWN"]["progBefore"].value_counts()
-        not_fulfilled_prog_before_total = prog_before_counts[prog_before_counts > self.quality_constraints_def.maxRepetitionsTotal]
-        if len(not_fulfilled_prog_before_total) > 0:
-            raise Exception(f"ProgBefore total not fulfilled")
-#  prog after week
-        prog_after_week_counts = filtered_df[filtered_df['progAfter'] != "UNKNOWN"].groupby(["progAfter", "week"]).size()
-        not_fulfilled_prog_after_week = prog_after_week_counts[prog_after_week_counts > self.quality_constraints_def.maxRepetitionsWeekly]
-        if len(not_fulfilled_prog_after_week) > 0:
-            raise Exception(f"ProgAfter week not fulfilled")
-# prog before week
-        prog_before_week_counts = filtered_df[filtered_df['progBefore'] != "UNKNOWN"].groupby(["progBefore", "week"]).size()
-        not_fulfilled_prog_before_week = prog_before_week_counts[prog_before_week_counts > self.quality_constraints_def.maxRepetitionsWeekly]
-        if len(not_fulfilled_prog_before_week) > 0:
-            raise Exception(f"ProgBefore week not fulfilled")
+        if not_fulfilled_min_grp.shape[0] > 0:
+            raise Exception(f"There are spot with grp not fulfilled")
+
+# repetitions
+        self.check_constraints_prog_repetition(filtered_df, 'progAfter', weekly=False)
+        self.check_constraints_prog_repetition(filtered_df, 'progBefore', weekly=False)
+        self.check_constraints_prog_repetition(filtered_df, 'progAfter', weekly=True)
+        self.check_constraints_prog_repetition(filtered_df, 'progBefore', weekly=True)
+
+
+
+# # prog after total
+#         prog_after_counts = filtered_df[filtered_df['progAfter'] != "UNKNOWN"]["progAfter"].value_counts()
+#         not_fulfilled_prog_after_total = prog_after_counts[prog_after_counts > self.quality_constraints_def.maxRepetitionsTotal]
+#         if len(not_fulfilled_prog_after_total) > 0:
+#             raise Exception(f"ProgAfter total not fulfilled")
+# # prog before total
+#         prog_before_counts = filtered_df[filtered_df['progBefore'] != "UNKNOWN"]["progBefore"].value_counts()
+#         not_fulfilled_prog_before_total = prog_before_counts[prog_before_counts > self.quality_constraints_def.maxRepetitionsTotal]
+#         if len(not_fulfilled_prog_before_total) > 0:
+#             raise Exception(f"ProgBefore total not fulfilled")
+# #  prog after week
+#         prog_after_week_counts = filtered_df[filtered_df['progAfter'] != "UNKNOWN"].groupby(["progAfter", "week"]).size()
+#         not_fulfilled_prog_after_week = prog_after_week_counts[prog_after_week_counts > self.quality_constraints_def.maxRepetitionsWeekly]
+#         if len(not_fulfilled_prog_after_week) > 0:
+#             raise Exception(f"ProgAfter week not fulfilled")
+# # prog before week
+#         prog_before_week_counts = filtered_df[filtered_df['progBefore'] != "UNKNOWN"].groupby(["progBefore", "week"]).size()
+#         not_fulfilled_prog_before_week = prog_before_week_counts[prog_before_week_counts > self.quality_constraints_def.maxRepetitionsWeekly]
+#         if len(not_fulfilled_prog_before_week) > 0:
+#             raise Exception(f"ProgBefore week not fulfilled")
 
     # grouped_counts = filtered_df[filtered_df['progBefore'] != "UNKNOWN"].groupby(["progBefore", "week"]).size()
-    def _get_indexes_banned_by_repetitions(self, min_cpp_index):
-        prog_before = self.df.loc[min_cpp_index, "progBefore"]
-        prog_after = self.df.loc[min_cpp_index, "progAfter"]
-        week = self.df.loc[min_cpp_index, "week"]
-        prog_before_week = prog_before + week
-        prog_after_week = prog_after + week
-        self.banned_progs_dict_before_total[prog_before] = self.banned_progs_dict_before_total[prog_before] +1
-        self.banned_progs_dict_after_total[prog_after] = self.banned_progs_dict_after_total[prog_after] +1
-        self.banned_progs_dict_before_weekly[prog_before_week] = self.banned_progs_dict_before_weekly[prog_before_week] +1
-        self.banned_progs_dict_after_weekly[prog_after_week] = self.banned_progs_dict_after_weekly[prog_after_week] +1
+    def _get_indexes_banned_by_repetitions(self, rep_info: RepetitionInfo):
+
+        repetitions_checker:RepetitionsChecker
+        for repetitions_checker in self.repetition_checkers:
+            repetitions_checker.add_entry(rep_info)
 
         banned_ids = []
         inc = []
-        if prog_before != "UNKNOWN":
-            if self.banned_progs_dict_before_total[prog_before] == self.quality_constraints_def.maxRepetitionsTotal:
-                inc = self.df[self.df["progBefore"] == prog_before].index.tolist()
+        if rep_info.prog_before != "UNKNOWN":
+            if self.banned_progs_dict_before_total[rep_info.prog_before] == self.quality_constraints_def.maxRepetitionsTotal:
+                inc = self.df[self.df["progBefore"] == rep_info.prog_before].index.tolist()
                 banned_ids = banned_ids + inc
-            if self.banned_progs_dict_before_weekly[prog_before_week] == self.quality_constraints_def.maxRepetitionsWeekly:
-                prog_before_week = prog_before + week
-                inc = self.df[self.df["progBeforeWeek"] == prog_before_week].index.tolist()
-                banned_ids = banned_ids + inc
-
-        if prog_after != "UNKNOWN":
-            if self.banned_progs_dict_after_total[prog_after] == self.quality_constraints_def.maxRepetitionsTotal:
-                inc = self.df[self.df["progAfter"] == prog_after].index.tolist()
+            if self.banned_progs_dict_before_weekly[rep_info.prog_before_week] == self.quality_constraints_def.maxRepetitionsWeekly:
+                inc = self.df[self.df["progBeforeWeek"] == rep_info.prog_before_week].index.tolist()
                 banned_ids = banned_ids + inc
 
-            if self.banned_progs_dict_after_weekly[prog_after_week] == self.quality_constraints_def.maxRepetitionsWeekly:
-                prog_after_week = prog_after + week
-                inc = self.df[self.df["progAfterWeek"] == prog_after_week].index.tolist()
+        if rep_info.prog_after != "UNKNOWN":
+            if self.banned_progs_dict_after_total[rep_info.prog_after] == self.quality_constraints_def.maxRepetitionsTotal:
+                inc = self.df[self.df["progAfter"] == rep_info.prog_after].index.tolist()
+                banned_ids = banned_ids + inc
+            if self.banned_progs_dict_after_weekly[rep_info.prog_after_week] == self.quality_constraints_def.maxRepetitionsWeekly:
+                inc = self.df[self.df["progAfterWeek"] == rep_info.prog_after_week].index.tolist()
                 banned_ids = banned_ids + inc
         return banned_ids
 

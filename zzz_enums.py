@@ -135,3 +135,9 @@ class OptimisationStep(Enum):
 class BlockOperation(Enum):
     PickUp = "PickUp"
     Drop = "Drop"
+
+class RepetitionType(Enum):
+    BeforeWeekly: "BeforeWeekly"
+    AfterWeekly: "AfterWeekly"
+    BeforeTotal: "BeforeTotal"
+    AfterTotal: "AfterTotal"
