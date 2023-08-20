@@ -34,7 +34,7 @@ class RepetitionsChecker():
             case enums.RepetitionType.AfterWeekly:
                 self.prog_column = 'progAfter'
                 self.is_weekly = True
-            
+
         self.prog_column:str
         self.is_weekly:bool
 
