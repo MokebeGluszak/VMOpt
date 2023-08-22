@@ -31,4 +31,6 @@ PATH_SLOWNIKI_ALIASES_FOLDER = r"C:\Users\macie\PycharmProjects\MnrwOrdersFlow\p
 PODEJRZANY_BLOK_ID: int = 15107428739
 ENCODING = "utf-8"
 
+MODE_DO_NOT_RANDOM:bool = False
+MODE_DEBUG:bool = False
 

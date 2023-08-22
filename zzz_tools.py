@@ -351,3 +351,50 @@ def get_formatted_timediff(timediff:datetime.timedelta)->str:
     milliseconds = timediff.microseconds // 1000
     info = f" ({hours:02}:{minutes:02}:{seconds:02}.{round(milliseconds / 100)})"
     return info
+
+def get_filtered_df(data_frame: pd.DataFrame, columns: Union[str, List[str]], values: Union[object, List[object]], operations: Union[str, List[str]] = None) -> pd.DataFrame: # type: ignore
+    """
+    Filter a DataFrame based on given column names, values, and comparison operations.
+
+    Parameters:
+        data_frame (pd.DataFrame): The input DataFrame to be filtered.
+        columns (str or list): Column name(s) to filter on.
+        values (object or list): Value(s) to filter against.
+        operations (str or list, optional): Comparison operation(s) for filtering. Default is '='.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame.
+    """
+    if not isinstance(columns, list):
+        columns = [columns]
+
+    if not isinstance(values, list):
+        values = [values]
+
+    if operations is None:
+        operations = ['='] * len(columns)
+    elif not isinstance(operations, list):
+        operations = [operations] * len(columns)
+
+    # Build the filter conditions
+    conditions = None
+    for column, value, operation in zip(columns, values, operations):
+        if operation == '=':
+            condition = data_frame[column] == value
+        elif operation == '!=':
+            condition = data_frame[column] != value
+        elif operation == '<':
+            condition = data_frame[column] < value
+        elif operation == '>':
+            condition = data_frame[column] > value
+        else:
+            raise ValueError(f'Unknown operation: {operation}')
+        # Add more comparison operations as needed
+
+        if conditions is None:
+            conditions = condition
+        else:
+            conditions &= condition
+
+    filtered_df = data_frame[conditions] # type: ignore
+    return filtered_df # type: ignore

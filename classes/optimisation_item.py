@@ -2,13 +2,19 @@ import zzz_enums as enums
 from classes.log import log, log_header
 import dataclasses
 import random
-
+from zzz_const import *
 
 from classes.quantity_constraint import QuantityConstraint
 
 
 def get_optimisation_item(quantity_constraint):
-    oi = OptimisationItem(quantity_constraint, random.random(), random.random(),  0, False)
+    if MODE_DO_NOT_RANDOM:
+        weight_bonus = 0.5
+        weight_malus = 0.5
+    else:
+        weight_bonus =random.random()
+        weight_malus = random.random()
+    oi = OptimisationItem(quantity_constraint, weight_bonus, weight_malus,  0, False)
     # oi = OptimisationItem(quantity_constraint, 0.5, 0, False)
     return oi
 

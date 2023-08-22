@@ -137,7 +137,7 @@ class BlockOperation(Enum):
     Drop = "Drop"
 
 class RepetitionType(Enum):
-    BeforeWeekly: "BeforeWeekly"
-    AfterWeekly: "AfterWeekly"
-    BeforeTotal: "BeforeTotal"
-    AfterTotal: "AfterTotal"
+    BeforeWeekly= "ProgBefore/Weekly"
+    AfterWeekly= "ProgAfter/Weekly"
+    BeforeTotal= "ProgBefore/Total"
+    AfterTotal= "ProgAfter/Total"
