@@ -19,7 +19,7 @@ class Slownik:
 def get_slownik(slownik_cfg_type: ENUM.SlownikType, df: pd.DataFrame) -> Slownik:
     slownik_cfg = get_slownik_cfg(slownik_cfg_type)
 
-    orgs_set = set(df[slownik_cfg.org_column].unique())
+    orgs_set = set(map(str.upper, df[slownik_cfg.org_column].unique()))
     aliases_set = slownik_cfg.get_aliases
 
     existing_dict = slownik_cfg.get_existing_dict

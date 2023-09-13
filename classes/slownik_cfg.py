@@ -7,9 +7,8 @@ import zzz_const as CONST
 import zzz_enums as ENUM
 from classes.file import File
 from classes.folder import Folder, get_folder
-from classes.sglt_project_cfg import SgltProjectCfg
 from zzz_tools import build_path
-
+import zzz_ordersTools as ot
 
 @dataclasses.dataclass
 class SlownikCfg:
@@ -20,17 +19,14 @@ class SlownikCfg:
 
     @property
     def get_aliases(self) -> Set[str]:
-        cfg = SgltProjectCfg()
+
         match self.slownik_type:
             case ENUM.SlownikType.SUBCAMPAIGNS:
-                raise NotImplementedError
-                # aliases = cfg.get_subcampaign_hashes_set
+                aliases = {"chuj", "dupa"}
             case ENUM.SlownikType.CHANNELS:
-                aliases = set(cfg.channel_mapping_df["channel"].tolist())
-                pass
+                aliases = set(ot.get_channels_mapping_df() )
             case ENUM.SlownikType.WOLNE_CZASY_LENGTHS:
-                aliases = set(cfg.copy_indexes_df["CopyLength"].tolist())
-                pass
+                aliases = set(ot.get_copy_indexes_df()["CopyLength"].tolist())
             case _:
                 raise NotImplementedError (f"SlownikType: {self.slownik_type} not implemented")
         return aliases

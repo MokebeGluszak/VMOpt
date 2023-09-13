@@ -48,6 +48,9 @@ def get_folder(path:str, behaviour_if_not_exists:BehaviourIfNotExists= Behaviour
         except OSError:
             # If there was an error creating the folder, handle it here
             raise OSError (f"Error: Could not create folder {path}")
+    else:
+        name = os.path.basename(path)
+        folder = Folder(name, path)
 
 
 

@@ -1,8 +1,10 @@
 import dataclasses
 
+import pandas as pd
+
 import zzz_enums as enums
 from classes.log import log, log_header
-
+# from zzz_optToolz import clear_string
 
 
 @dataclasses.dataclass
@@ -18,6 +20,7 @@ class RepetitionInfo:
 
     def get_proper_entry_name(self, repetition_type:enums.RepetitionType)->str:
         prog_name:str
+        prog_name_cleared:str
         match repetition_type:
             case enums.RepetitionType.BeforeTotal:
                 prog_name = self.prog_before
@@ -29,4 +32,13 @@ class RepetitionInfo:
                 prog_name = self.prog_after_week
             case _:
                 log_header("RepetitionInfo.get_proper_prog_name")
-        return prog_name
+        prog_name_cleared = prog_name
+        return prog_name_cleared
+
+
+def get_repetition_info(df: pd.DataFrame, index: int) -> RepetitionInfo:
+    prog_before: str = df.loc[index, "progBefore"]  # type: ignore
+    prog_after: str = df.loc[index, "progAfter"]  # type: ignore
+    week: str = df.loc[index, "week"]  # type: ignore
+    repetition_info: RepetitionInfo = RepetitionInfo(prog_before, prog_after, week)
+    return repetition_info

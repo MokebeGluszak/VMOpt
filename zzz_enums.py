@@ -11,6 +11,10 @@ class Supplier(Enum):
     TVN = "TVN"
     POLSAT = "Polsat"
 
+class BookingFile(Enum):
+    PolsatWrongDates = r"C:\Users\macie\PycharmProjects\VMOpt\Source\Orders\2 booking polsat wrong dates.xlsx"
+    PolsatFake = r"C:\Users\macie\PycharmProjects\VMOpt\Source\Orders\2 booking polsat fake.xlsx"
+    PolsatOkRatecard = r"C:\Users\macie\PycharmProjects\VMOpt\Source\Orders\bookings\polsat\ABBOTT_LABORATORIES_POLAND_SP_Z_O_O - Polsat cennik(3).xlsx"
 
 class MatchLevel(Enum):
     NO_TIMEBAND = "No timeband"
@@ -41,13 +45,6 @@ class ExportFormat(Enum):
     Irrelevant = "Irrelevant"
 
 
-class BookingQuality(Enum):
-    OK = "OK"
-    ABSENT_CHANNELS = "Absent channels"
-    ILLEGAL_CHANNELS = "Illegal channels"
-    FUCKED_UP_DATES = "Fucked up dates"
-
-
 class FreeTimesQuality(Enum):
     OK = "OK"
 
@@ -60,12 +57,10 @@ class OptimisationDefType(Enum):
 
 
 class ScheduleType(Enum):
-    OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-08-08 1324.xlsx"
-    SMALL = (
-        r"C:\Users\macie\PycharmProjects\VMOpt\Source\schedule 2023-07-27 small.xlsx"
-    )
-    ILLEGAL_CHANNELS = "Illegal channels"
-    OK_4CHANNELS_1WANTED = "OK_4channels_1wanted"
+    OK9 = r"C:\Users\macie\PycharmProjects\VMOpt\Source\Orders\schedule\OK last 6 weeks tg01 All 30-64 RFP OOH after export.xlsx"
+    OK9_small = r"C:\Users\macie\PycharmProjects\VMOpt\Source\Orders\schedule\OK last 6 weeks tg01 All 30-64 RFP OOH small after export.xlsx"
+    # ILLEGAL_CHANNELS = "Illegal channels"
+    # OK_4CHANNELS_1WANTED = "OK_4channels_1wanted"
 
 
 class ExceptionType(Enum):

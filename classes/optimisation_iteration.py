@@ -8,10 +8,12 @@ from numpy import datetime64
 import zzz_enums as enums
 import classes.log as log
 import numpy as np
+
+from classes.exceptions import OptimisationException
 from classes.optimisation_item import OptimisationItem, get_optimisation_item
 from classes.quality_constraints_def import QualityConstraintsDef
 from classes.quantity_constraint import QuantityConstraint
-from classes.repetition_info import RepetitionInfo
+from classes.repetition_info import RepetitionInfo, get_repetition_info
 from classes.repetitions_checker import RepetitionsChecker, get_repetitions_checkers
 from classes.result_folder import export_file_path
 from zzz_const import MODE_DEBUG
@@ -21,20 +23,23 @@ from zzz_const import MODE_DEBUG
 class OptimisationIteration:
     df_org: pd.DataFrame
     df: pd.DataFrame
+    copy_number: int
     n_iteration: int
     optimisation_items: List[OptimisationItem]
     quality_constraints_def: QualityConstraintsDef
     desired_grp: float
+    repetition_checkers:List[RepetitionsChecker]
     wanted_indexes: Set[int] = dataclasses.field(default_factory=set)
     constraint_column_names: List[str] = dataclasses.field(default_factory=list)
     repetition_checkers: List[RepetitionsChecker] = dataclasses.field(default_factory=list)
+    complete:bool = False
 
     def __post_init__(self):
-        self.df["available"] = 1
+        self.df["available"] = self.df["copyNumber"].apply(lambda x: 0 if x > 0 else 1)
         self.constraint_column_names = [
             oi.quantity_constraint.column_name for oi in self.optimisation_items
         ]
-        self.repetition_checkers =  get_repetitions_checkers(self.quality_constraints_def.maxRepetitionsTotal,self.quality_constraints_def.maxRepetitionsWeekly, self.df)
+
 
 
 
@@ -69,7 +74,7 @@ class OptimisationIteration:
             self.df[self.constraint_column_names].values * maluses, axis=1
         )
         self.df["grpOpt3"] = (
-            self.df["malusCurrent3"] * self.df["grp"] * (self.df["dropable"])
+            self.df["malusCurrent3"] * self.df["grp"] * self.df["dropable"]
         )
         self.df["cppOpt3"] = self.df["eqNetPrice"] / self.df["grpOpt3"]
 
@@ -85,7 +90,7 @@ class OptimisationIteration:
             banned_indices = []
             max_index = self.df.index.max()
 
-            while 0 <= start_index < max_index:
+            while 0 <= start_index <= max_index:
                 try:
                     check_date_time = self.df.loc[start_index + step, "xDateTime"]
                     check_channel = self.df.loc[start_index + step, "channel"]
@@ -155,13 +160,11 @@ class OptimisationIteration:
     #
     #     return banned
 
+
     def _tag_unavailable(self, min_cpp_index: int):
         # to taguje tylko te kture zostały zbanowane przy dobraniu tego spota
         banned_indexes_interval: list[int] = self._get_indexes_banned_by_spot_interval(min_cpp_index) # type: ignore
-        prog_before:str = self.df.loc[min_cpp_index, "progBefore"]# type: ignore
-        prog_after:str = self.df.loc[min_cpp_index, "progAfter"]# type: ignore
-        week:str = self.df.loc[min_cpp_index, "week"]# type: ignore
-        repetition_info:RepetitionInfo = RepetitionInfo(prog_before, prog_after, week)
+        repetition_info:RepetitionInfo = get_repetition_info(self.df, min_cpp_index)
         banned_indexes_repetition:list[int] = self._get_indexes_banned_by_repetitions(repetition_info)
         # if len(banned_indexes_repetition) > 100:
         #     print (len(banned_indexes_repetition))
@@ -169,6 +172,8 @@ class OptimisationIteration:
 
 
         banned_indexes_all = banned_indexes_interval + banned_indexes_repetition
+        if len(banned_indexes_all) > 0:
+            pass
         self.df.loc[banned_indexes_all, "available"] = 0
         if MODE_DEBUG:
             self.df.loc[banned_indexes_all, "bannedBy"] = min_cpp_index
@@ -181,12 +186,12 @@ class OptimisationIteration:
 
     @property
     def get_grp(self) -> float:
-        grp_sum = self.df.query("copyNumber == 1")["grp"].sum()
+        grp_sum = self.df.query(f"copyNumber == {self.copy_number}")["grp"].sum()
         return grp_sum
 
     @property
     def get_eqNetPrice(self) -> float:
-        eqNetPrice_sum = self.df.query("copyNumber == 1")["eqNetPrice"].sum()
+        eqNetPrice_sum = self.df.query(f"copyNumber == {self.copy_number}")["eqNetPrice"].sum()
         return eqNetPrice_sum
 
     @property
@@ -203,13 +208,13 @@ class OptimisationIteration:
     def export_schedule(self):
         log.reset_timer
         optimised_df = self.df_org.copy()
-        optimised_df.loc[optimised_df.index.isin(self.wanted_indexes), "copyNumber"] = 1
+        optimised_df.loc[optimised_df.index.isin(self.wanted_indexes), "copyNumber"] = self.copy_number
         optimised_df.to_excel(
             export_file_path(f"schedule optimisation{self.n_iteration}.xlsx")
         )
         # filtered_df = self.df[self.df['copyNumber'] == 1]
         # filtered_df.to_excel(export_file_path(f'selected breaks optimisation{self.n_optimisation}.xlsx'))
-        log.log("Exporting schedule {self.n_optimisation} done", True)
+        log.log(f"Exporting schedule {self.n_iteration} done", True)
 
     def get_constraints_fulfilled(self):
         fulfilled = all(oi.is_fulfilled for oi in self.optimisation_items)
@@ -232,7 +237,38 @@ class OptimisationIteration:
 
                 if oi.grp > oi.quantity_constraint.min_grp:
                     oi.is_fulfilled = True
+                else:
+                    oi.is_fulfilled = False
             n += 1
+        pass
+
+    def check_result(self, copy_number):
+        # ma sprawdzić wyłącznie jedną kopię. Progrepetitions dict jest generalnie gotowe do tego żeby sprawdzać wszystkie, ale na razie zostawiamy osobno dla spujności         # get_repetitions_dict trzeba by zmienić
+
+        filtered_df = self.df[self.df["copyNumber"] == copy_number]
+
+        sorted_df = filtered_df.sort_values(by=["channel", "xDateTime"])
+        sorted_df["time_diff"] = sorted_df.groupby("channel")["xDateTime"].diff()
+
+        # interval
+        not_fulfilled_interval = sorted_df[
+            sorted_df["time_diff"]
+            < pd.Timedelta(minutes=self.quality_constraints_def.minSpotInterval)
+            ]
+        if len(not_fulfilled_interval) > 0:
+            raise Exception(f"There are {len(not_fulfilled_interval)} spots with time interval not fulfilled")
+
+        # min grp
+        not_fulfilled_min_grp = filtered_df[
+            filtered_df["grp"] < self.quality_constraints_def.minGrp
+            ]
+        if not_fulfilled_min_grp.shape[0] > 0:
+            raise Exception(f"There are spot with grp not fulfilled")
+
+        # repetitions
+        df_selection: pd.DataFrame = filtered_df[filtered_df['copyNumber'] == copy_number]
+        for repetitions_checker in self.repetition_checkers:
+            repetitions_checker.check_repetitions(df_selection)  # sprawdza po grupbaju
         pass
 
     def run_part1_fulfillConstraints(self, copy_number: int):
@@ -240,18 +276,25 @@ class OptimisationIteration:
         self.df["order"] = 0
         constraints_fulfilled: bool = False
         n = 1
+        self._recalculate_df_step1() # przed wybraniem pierwszego, a potem po każdym kolejnym bo avaiable się zmienia
         while not constraints_fulfilled:
-            self._recalculate_df_step1()
-            min_cpp_index: int = self.df["cppOpt1"].idxmin()  # type: ignore
 
+            min_cpp_index: int = self.df["cppOpt1"].idxmin()  # type: ignore
+            cpp = self.df.loc[min_cpp_index, "cppOpt1"]  # type: ignore
+
+            if cpp == np.inf:
+                raise OptimisationException("Not enough breaks to fulfill constraints")
+            if MODE_DEBUG:
+                if min_cpp_index == 2116:
+                    pass
             self.pick_up_spot(min_cpp_index, copy_number, n)
+            self._recalculate_df_step1()
             self.change_constraints_fulfillment( min_cpp_index, enums.BlockOperation.PickUp)
             # if n == 500:
             #     pass
             constraints_fulfilled = self.get_constraints_fulfilled()
             n += 1
-            if self.df.loc[min_cpp_index, "cppOpt1"] == np.inf:
-                raise Exception("No more breaks to fulfill constraints")
+
         log.log(f"Part 1 done, {n} iterations. {self.get_info}", True)
 
     def run_part2_fulfillTotal(self, copy_number):
@@ -264,10 +307,9 @@ class OptimisationIteration:
             self._recalculate_df_step2()
             min_cpp_index = self.df["cppOpt2"].idxmin()  # type: ignore
             if self.df.loc[min_cpp_index, "cppOpt2"] == np.inf:
-                self.df.to_excel(export_file_path(f"part2 break.xlsx"))
-                raise Exception("Not enough breaks to fulfill total grp")
-            if min_cpp_index == 202:
-                pass
+                if MODE_DEBUG:
+                    self.df.to_excel(export_file_path(f"part2 break.xlsx"))
+                raise OptimisationException("Not enough breaks to fulfill total grp")
 
             self.pick_up_spot(min_cpp_index, copy_number, n)  # type: ignore
             grp_sum += self.df.loc[min_cpp_index, "grp"]  # type: ignore
@@ -282,28 +324,36 @@ class OptimisationIteration:
         n = 0
 
         self.df["dropable"] = self.df["copyNumber"].apply(
-            lambda x: 1 if x == copy_number else 0
+            lambda x: 1 if x == copy_number else -1
         )
-        zrobić żeby brał najwyższe cpp ale nie licząc inf
-        while grp_sum > self.desired_grp:
+
+
+        while grp_sum >= self.desired_grp:
             n += 1
+            # print (n)
+            # if n == 490:
+            #     pass
             self._recalculate_df_step3()
-            max_cpp_index: int = int(self.df["cppOpt3"].idxmax())
-            if self.df.loc[max_cpp_index, "cppOpt3"] == np.inf:
-                raise Exception("Cannot limit grp to desired value without unfulfilling constraints")
+
+
+
+            if self.df["cppOpt3"].max() == np.inf:
+                raise OptimisationException("Cannot limit grp to desired value without unfulfilling constraints")
+            if self.df["cppOpt3"].max() < 0:
+                raise OptimisationException("Cannot limit grp to desired value without unfulfilling constraints")
+            max_cpp_index: int = self.df['cppOpt3'].idxmax() # type: ignore
             grp = self.df.loc[max_cpp_index, "grp"]
-            try:
-                self.wanted_indexes.remove(max_cpp_index)
-            except KeyError:
-                pass
+
+            self.wanted_indexes.remove(max_cpp_index)
+
             self.change_constraints_fulfillment(max_cpp_index, enums.BlockOperation.Drop)
             if self.get_constraints_fulfilled():
                 self.drop_spot(max_cpp_index, copy_number)
                 grp_sum -= grp # type: ignore
             else:
-                self.drop_spot(max_cpp_index, copy_number)
-                self.df.loc[max_cpp_index, "dropable"] = 0  # jak nie możesz usunąć to nie możesz
-                self.wanted_indexes.remove(max_cpp_index)
+                # self.pick_up_spot(max_cpp_index, copy_number)
+                self.df.loc[max_cpp_index, "dropable"] = -1  # jak nie możesz usunąć to nie możesz
+                self.wanted_indexes.add(max_cpp_index)
                 self.change_constraints_fulfillment(max_cpp_index, enums.BlockOperation.PickUp)
 
         if n > 0:  # jeśli coś usunąłeś to musisz dodać ostatni spota
@@ -319,42 +369,22 @@ class OptimisationIteration:
         self.df.loc[index, "available"] = 0
         self.df.loc[index, "order"] = order
         self.df.loc[index, "copyNumber"] = copy_number
-
+        # if MODE_DEBUG:
+        #     print (index)
+        #     self.check_result(copy_number)
 
     def drop_spot(self, index:int, copy_number:int):
         if self.df.loc[index, "copyNumber"] != copy_number:
             raise Exception(f"This spot ({index}) is already dropped")
         else:
-            self.df.loc[index, "dropable"] = 0  # jak go usunąłeś to nie możesz jeszcze raz
+            self.df.loc[index, "dropable"] = -1  # jak go usunąłeś to nie możesz jeszcze raz
             self.df.loc[index, "copyNumber"] = 0
 
-    def check_result(self, copy_number):
-        filtered_df = self.df[self.df["copyNumber"] == copy_number]
-
-        sorted_df = filtered_df.sort_values(by=["channel", "xDateTime"])
-        sorted_df["time_diff"] = sorted_df.groupby("channel")["xDateTime"].diff()
-# interval
-        not_fulfilled_interval = sorted_df[
-            sorted_df["time_diff"]
-            < pd.Timedelta(minutes=self.quality_constraints_def.minSpotInterval)
-        ]
-        if len(not_fulfilled_interval) > 0:
-            raise Exception(f"There are spot with time interval not fulfilled")
-# min grp
-        not_fulfilled_min_grp = filtered_df[
-            filtered_df["grp"] < self.quality_constraints_def.minGrp
-        ]
-        if not_fulfilled_min_grp.shape[0] > 0:
-            raise Exception(f"There are spot with grp not fulfilled")
-
-# repetitions
-        df_selection:pd.DataFrame = filtered_df[filtered_df['copyNumber'] != 0]
-        for repetitions_checker in self.repetition_checkers:
-            repetitions_checker.check_repetitions(df_selection)
 
 
 
-
+    # def check_repetitions(self)
+    #     :
 # # prog after total
 #         prog_after_counts = filtered_df[filtered_df['progAfter'] != "UNKNOWN"]["progAfter"].value_counts()
 #         not_fulfilled_prog_after_total = prog_after_counts[prog_after_counts > self.quality_constraints_def.maxRepetitionsTotal]
@@ -384,21 +414,31 @@ class OptimisationIteration:
             repetitions_checker.add_entry(rep_info)
             entry_name  =  rep_info.get_proper_entry_name(repetitions_checker.repetition_type)
             repetitions_count = repetitions_checker.prog_repetitions_dict[entry_name]
-            if repetitions_count == repetitions_checker.max_repetitions: # jeżeli osiągnąłeś limit
-                inc = self.df[self.df[repetitions_checker.column_name] == entry_name].index.tolist()         # co z jednej strony mają ten program/tydzień są banowani
+            if repetitions_count == repetitions_checker.max_repetitions:                                # jeżeli osiągnąłeś limit
+                inc = self.df[self.df[repetitions_checker.column_name] == entry_name].index.tolist()    # co z jednej strony mają ten program/tydzień są banowani
                 banned_ids = banned_ids + inc
         return banned_ids
 
+    def run_optimisation(self):
 
-
+        try:
+            self.run_part1_fulfillConstraints(self.copy_number)
+            self.run_part2_fulfillTotal(self.copy_number)
+            self.run_part3_decrement(self.copy_number)
+            self.check_result(self.copy_number)
+            self.complete = True
+            log.log(f"Optimisation {self.n_iteration} done")
+        except OptimisationException as e:
+            log.log(f"Optimisation {self.n_iteration} failed: {e}")
 
 
 def get_optimisation_items(
     quantity_constraints: List[QuantityConstraint],
+    random_bonus: bool ,
 ) -> List[OptimisationItem]:
     ois = []
     for quantity_constraint in quantity_constraints:
-        oi = get_optimisation_item(quantity_constraint)
+        oi = get_optimisation_item(quantity_constraint, random_bonus)
         ois.append(oi)
     return ois
 
@@ -406,13 +446,18 @@ def get_optimisation_items(
 def get_optimisation_iteration(
     df_org: pd.DataFrame,
     df: pd.DataFrame,
+    copy_number:int,
     n_iteration: int,
     optimisation_items: List[QuantityConstraint],
     quality_constraints_def: QualityConstraintsDef,
     desired_grp: float,
+    repetition_checkers:List[RepetitionsChecker],
+    random_bonus: bool,
 ) -> OptimisationIteration:
-    ois = get_optimisation_items(optimisation_items)
+    ois = get_optimisation_items(optimisation_items, random_bonus)
+
+
     optimisation = OptimisationIteration(
-        df_org, df.copy(), n_iteration, ois, quality_constraints_def, desired_grp
+        df_org, df,copy_number, n_iteration,  ois, quality_constraints_def, desired_grp, repetition_checkers
     )
     return optimisation

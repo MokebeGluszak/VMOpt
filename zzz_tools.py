@@ -211,7 +211,7 @@ def export_df(
 
     if export_folder_path == "":
         from classes.result_folder import sgltResultFolder
-        export_folder = sgltResultFolder.folder
+        export_folder = sgltResultFolder().folder
     else:
         export_folder = get_folder(export_folder_path)
 

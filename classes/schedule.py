@@ -13,7 +13,6 @@ from classes.merger import get_merger
 from classes.optimisation_def import OptimisationDef
 from classes.quantity_constraint import QuantityConstraint
 from classes.schedule_break import ScheduleBreak
-from classes.sglt_project_cfg import SgltProjectCfg
 from classes.status_info import StatusInfo
 # from classes.timeband import Timeband
 from classes.wantedness_info import WantednessInfo
@@ -22,7 +21,7 @@ from zzz_tools import check_cannon_columns, getTimebandId, get_substring_between
 
 @dataclasses.dataclass
 class Schedule(iDataFrameable):
-    schedule_type: enum.ScheduleType
+    schedule_path: str
     df_org: pd.DataFrame
     df: pd.DataFrame
 
@@ -53,7 +52,7 @@ class Schedule(iDataFrameable):
                 self.df = self.df[self.df[optimisation_item.type.value] != optimisation_item.name]
                 count_after: int = len(self.df)
                 log( f"Removed {count_before - count_after} {optimisation_item.type} {optimisation_item.name} from schedule")
-        log (f"\nTotal removed by dissaloved items:  {count_start - count_after} from {count_start} blocks")
+        log (f"\nTotal removed by disallowed items:  {count_start - count_after} from {count_start} blocks")
 
 
     def filter_banned_blocks(self,  banned_blocks: list[str]):
@@ -111,16 +110,18 @@ def get_schedule_breaks(df: pd.DataFrame) -> Collection:
     return breaks
 
 
-def get_schedule(schedule_type: enum.ScheduleType) -> Schedule:
+def get_schedule(schedule_path:str) -> Schedule:
 
-    df_schedule_org = get_df_processor(enum.DfProcessorType.SCHEDULE, schedule_type.value).get_df
+    df_schedule_org = get_df_processor(enum.DfProcessorType.SCHEDULE, schedule_path).get_df
+    df_schedule_org.sort_values(by=['channel', 'xDateTime'], ascending=True, inplace=True)
+    df_schedule_org.reset_index(inplace=True, drop=True)
     df_schedule = df_schedule_org.copy()
 
-    df_schedule.sort_values(by=['channel', 'xDateTime'], ascending=True, inplace=True)
+
     df_schedule['available'] = 1
 
     df_schedule.reset_index()
-    schedule = Schedule(schedule_type, df_schedule_org , df_schedule)
+    schedule = Schedule(schedule_path, df_schedule_org , df_schedule)
     return schedule
 
 

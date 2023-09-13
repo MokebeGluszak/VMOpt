@@ -14,6 +14,14 @@ class MyProgramException(Exception):
 #     def __init__(self):
 #     pass
 
+class OptimisationException(MyProgramException):
+
+    def __init__(self, desc:str):
+        self.desc = desc
+
+    def __str__(self):
+        return self.desc
+
 
 
 class MergerException(MyProgramException):

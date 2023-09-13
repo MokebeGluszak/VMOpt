@@ -12,6 +12,7 @@ def get_complement_dict(caption:str, orgs_to_slownikize_set:Set[str], aliases:se
         complement_dict = {}
         complement_dict[org_to_add] = alias
     else:
-        raise NotImplementedError
+        # zaperkejsować słownik
+        raise NotImplementedError (f"Słownik not implemented {orgs_to_slownikize_set} ")
 
     return complement_dict

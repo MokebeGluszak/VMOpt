@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import List
 
@@ -5,17 +6,20 @@ import pandas as pd
 
 import zzz_enums as enum
 from classes.df_processor_cfg import DfProcessorConfig, get_df_processor_config
+from classes.exceptions import MyProgramException
 from classes.file import get_file
 from classes.merger import get_merger
 from classes.slownik import get_slownik
-
+from classes.log import log
 from zzz_tools import get_float
-
+import classes.log as log
 
 @dataclass
 class DfProcessor:
     cfg: DfProcessorConfig
     file_path:str
+
+
 
     @property
     def get_file_name(self) -> str:
@@ -39,8 +43,9 @@ class DfProcessor:
         return dtype
 
     def _get_df_org_xlsx(self) -> pd.DataFrame:
-        header_rows = range(0, 11)
+        header_rows = range(0, self.cfg.max_header_row)
         df_test = None
+        missing_columns_str:str
         if self.cfg.import_only_defined_columns:
             column_orgs = self._get_column_orgs
         else:
@@ -52,10 +57,13 @@ class DfProcessor:
             try:
                 df_test = pd.read_excel(file.path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, nrows=1)
                 break
-            except:
-                continue
+            except ValueError as e:
+                missing_columns_str = str(e)
         if df_test is None:
-            raise ValueError(f"Error opening dataframe from: {file.path}")
+            if self.cfg.max_header_row == 1:
+                raise ValueError(missing_columns_str)
+            else:
+                raise ValueError (f"Error opening dataframe from: {file.name}\nExpected headers {column_orgs}")
         else:
             df = pd.read_excel(
                 self.file_path, sheet_name=self.cfg.sheet_name, usecols=column_orgs, header=row, dtype=dtype
@@ -104,14 +112,14 @@ class DfProcessor:
 
         match self.cfg.df_processor_type:
             case enum.DfProcessorType.BOOKING_POLSAT:
-                from zzz_ordersTools import get_date_time_polsat,get_copy_indexes_df
+                from zzz_ordersTools import get_date_time,get_copy_indexes_df
 
                 df_copyIndexes = get_copy_indexes_df()
                 df["CopyLength"] = df["Długość"].str.replace('"', "").astype(int)
                 df = get_merger(
                     "copy indexes", df, df_copyIndexes, "CopyLength", case_sensitive=True
                 ).return_merged_df()
-                df["dateTime"] = df.apply(lambda x: get_date_time_polsat(x["Data"], x["Godzina"]), axis=1)
+                df["dateTime"] = df.apply(lambda x: get_date_time(x["Data"], x["Godzina"] , "dd.mm.yyyy", time_format="hh:mm:ss"), axis=1)
                 df["channel_org"] = df["Stacja"]
                 df["ratecard_indexed"] = df.apply(lambda x: get_float(x["Base price"]), axis=1)
                 df["ratecard"] = df["ratecard_indexed"] / df["CopyIndex"]
@@ -130,6 +138,7 @@ class DfProcessor:
 
     @property
     def get_df(self) -> pd.DataFrame:
+        log.reset_timer()
         df: pd.DataFrame = self._get_df_org()           # bierze albo wszystkie albo zdefiniowane w zależność od cfg.import_only_defined_columns
         if self.cfg.add_file_name:
             df["file_name"] = self.get_file_name
@@ -138,6 +147,7 @@ class DfProcessor:
         self._rename_columns(df)
         self._process_slowniki(df)
         self._check_mod_columns(df)
+        log.log(f"File processed: {self.file_path}", True)
         return df
 
     def _check_mod_columns(self, df):
