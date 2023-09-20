@@ -8,8 +8,8 @@ from classes.quality_constraints_def import  QualityConstraintsDef
 from classes.quantity_constraint import QuantityConstraint
 
 
-def get_optimisation_def(optimisation_def_type:enums.OptimisationDefType):
-    with open(optimisation_def_type.value, 'r') as file:
+def get_optimisation_def(optimisation_json_path:str)->'OptimisationDef':
+    with open(optimisation_json_path, 'r') as file:
         json_data = json.load(file)
     planning_objects_dict = json_data["Planing objects"]
     quality_constraints_dict = json_data["qualityConstraints"]

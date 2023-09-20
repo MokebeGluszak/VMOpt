@@ -16,22 +16,24 @@ class ScheduleBreak(iSerializable):
     channel: str
     progBefore: str
     progAfter: str
-    copyNumber: str
     xDateTime: datetime
     ratecard: int
     grp: float
 
+    copyNumber: str
+
     week: str
     channelGroup: str
     timeband: str
-
+    eqNetPrice: float
     def __str__(self):
         return str(self.blockId)
 
-
     def unbook(self):
-        self.status_info = StatusInfo(subcampaign_id=-1, origin=Origin.Station, is_booked=False)
+        self.copyNumber = 0
 
+    def book(self, copyNumber: int):
+        self.copyNumber = copyNumber
     def serialize(self, export_format: ExportFormat):
         raise NotImplementedError
         # if export_format == ExportFormat.ScheduleBreak_rozkminki:

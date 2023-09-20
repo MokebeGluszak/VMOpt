@@ -14,6 +14,7 @@ from classes.optimisation_def import OptimisationDef
 from classes.quantity_constraint import QuantityConstraint
 from classes.schedule_break import ScheduleBreak
 from classes.status_info import StatusInfo
+from classes.timeband import Timeband
 # from classes.timeband import Timeband
 from classes.wantedness_info import WantednessInfo
 from zzz_tools import check_cannon_columns, getTimebandId, get_substring_between_parentheses, export_df, Collection
@@ -89,7 +90,25 @@ class Schedule(iDataFrameable):
         self.filter_disallowed_items(optimisation_def.quantity_constraints_all)
         self.filter_min_grp(optimisation_def.quality_constraints_def.minGrp)
 
+    @property
+    def get_timebands_dict(self) -> Dict[str, Timeband]:
+        timebands_dict: Dict[str, Timeband] = {}
+        for schedule_break in self.schedule_breaks.values():
+            if schedule_break.tbId1 in timebands_dict.keys():
+                timeband1 = timebands_dict[schedule_break.tbId1]
+            else:
+                timeband1 = Timeband(schedule_break.tbId1)
+                timebands_dict[schedule_break.tbId1] = timeband1
 
+            timeband1.add_schedule_break(schedule_break)
+
+            if schedule_break.tbId2 in timebands_dict.keys():
+                timeband2 = timebands_dict[schedule_break.tbId2]
+            else:
+                timeband2 = Timeband(schedule_break.tbId2)
+                timebands_dict[schedule_break.tbId2] = timeband2
+            timeband2.add_schedule_break(schedule_break)
+        return timebands_dict
 def get_is_booked(boookedness: str) -> bool:
     is_booked: bool
     if boookedness == "Booked":
@@ -110,18 +129,27 @@ def get_schedule_breaks(df: pd.DataFrame) -> Collection:
     return breaks
 
 
-def get_schedule(schedule_path:str) -> Schedule:
+def get_schedule(schedule_path:str, schedule_load_mode:enum.ScheduleLoadMode) -> Schedule:
 
     df_schedule_org = get_df_processor(enum.DfProcessorType.SCHEDULE, schedule_path).get_df
-    df_schedule_org.sort_values(by=['channel', 'xDateTime'], ascending=True, inplace=True)
-    df_schedule_org.reset_index(inplace=True, drop=True)
-    df_schedule = df_schedule_org.copy()
+    load_breaks: bool
 
-
-    df_schedule['available'] = 1
-
-    df_schedule.reset_index()
+    match schedule_load_mode:
+        case enum.ScheduleLoadMode.Optimisation:
+            df_schedule_org.sort_values(by=['channel', 'xDateTime'], ascending=True, inplace=True)
+            df_schedule_org.reset_index(inplace=True, drop=True)
+            df_schedule = df_schedule_org.copy()
+            df_schedule['available'] = 1
+            df_schedule.reset_index()
+            load_breaks = False
+        case enum.ScheduleLoadMode.Booking:
+            df_schedule = df_schedule_org.copy()
+            load_breaks = True
+        case _ :
+            raise MyProgramException(f"Wrong schedule_load_mode: {schedule_load_mode}")
     schedule = Schedule(schedule_path, df_schedule_org , df_schedule)
+    if load_breaks:
+        schedule.load_breaks()
     return schedule
 
 

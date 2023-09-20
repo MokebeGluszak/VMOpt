@@ -22,8 +22,6 @@ class OptimisationException(MyProgramException):
     def __str__(self):
         return self.desc
 
-
-
 class MergerException(MyProgramException):
     """Raised when the merger is not valid"""
 

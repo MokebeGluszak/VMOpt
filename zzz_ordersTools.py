@@ -8,7 +8,6 @@ import pandas as pd
 import zzz_const as CONST
 import zzz_enums as ENUM
 import zzz_strings as STR
-from classes.break_info import BreakInfo
 from classes.exceptions import MyProgramException
 from classes.merger import get_merger
 from classes.schedule_break import ScheduleBreak
@@ -180,28 +179,10 @@ def get_empty_timeband() -> Timeband:
     return timeband
 
 
-def get_empty_break_info() -> BreakInfo:
-    break_info = BreakInfo(0, CONST.FAKE_DATE, CONST.FAKE_INT, STR.IRELEVANT)
-    return break_info
 
+def get_empty_schedule_break(block_id, channel:str , xDate_time:dt.datetime, ratecard:int) -> ScheduleBreak:
+    schedule_break = ScheduleBreak(block_id, channel, STR.IRELEVANT, STR.IRELEVANT, xDate_time, ratecard, 0, 0)
 
-def get_empty_schedule_break(break_info: BreakInfo) -> ScheduleBreak:
-    schedule_break = ScheduleBreak(
-        break_info,
-        get_empty_status_info(),
-        STR.IRELEVANT,
-        STR.IRELEVANT,
-        STR.IRELEVANT,
-        STR.IRELEVANT,
-        STR.IRELEVANT,
-        999,
-        0,
-        0,
-        0,
-        0,
-        0,
-        50,
-    )
     return schedule_break
 
 
@@ -210,25 +191,25 @@ def get_empty_status_info() -> StatusInfo:
     return status_info
 
 
-def get_schedule_break_from_channel_break(break_info: BreakInfo) -> ScheduleBreak:
-    schedule_break = ScheduleBreak(
-        break_info,
-        get_empty_status_info(),
-        STR.IRELEVANT,
-        STR.IRELEVANT,
-        STR.ADDED_BY_STATION,
-        STR.UNKNOWN,
-        STR.UNKNOWN,
-        999,
-        STR.BOOKEDNESS_NOT_BOOKED,
-        0,
-        0,
-        0,
-        0,
-        0,
-        50,
-    )
-    return schedule_break
+# def get_schedule_break_from_channel_break(break_info: BreakInfo) -> ScheduleBreak:
+#     schedule_break = ScheduleBreak(
+#         break_info,
+#         get_empty_status_info(),
+#         STR.IRELEVANT,
+#         STR.IRELEVANT,
+#         STR.ADDED_BY_STATION,
+#         STR.UNKNOWN,
+#         STR.UNKNOWN,
+#         999,
+#         STR.BOOKEDNESS_NOT_BOOKED,
+#         0,
+#         0,
+#         0,
+#         0,
+#         0,
+#         50,
+#     )
+#     return schedule_break
 
 
 def get_subcampaigns_dict(copiesOrg: List[str], copies: List[str]) -> Dict[str, str]:

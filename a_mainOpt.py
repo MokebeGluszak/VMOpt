@@ -22,14 +22,15 @@ from zzz_const import MODE_DEBUG
 
 def get_best_iteration(
     copy_number: int,
-    schedule_type: enums.ScheduleType,
-    optimisation_def_type: enums.OptimisationDefType,
+    schedule_path: str,
+    optimisation_json_path: str,
     iterations_count: int,
     random_bonus: bool ,
 ) -> OptimisationIteration:
 
-    schedule: Schedule = get_schedule(schedule_type)
-    optimisation_def: OptimisationDef = get_optimisation_def(optimisation_def_type)
+    optimisation_def: OptimisationDef = get_optimisation_def(optimisation_json_path)
+    schedule: Schedule = get_schedule(schedule_path, schedule_load_mode=enums.ScheduleLoadMode.Optimisation)
+
     schedule.run_filters(optimisation_def)
     check_optimisation_consistency(
         schedule.df, optimisation_def.quantity_constraints_all
@@ -77,11 +78,11 @@ def get_best_iteration(
 
 if __name__ == "__main__":
     optimisation_iteration: OptimisationIteration = get_best_iteration(
-        copy_number=1,
-        schedule_type=enums.ScheduleType.OK9,
-        optimisation_def_type=enums.OptimisationDefType.OK,
-        iterations_count=5,
+        copy_number=1,                                              # int
+        schedule_path=enums.ScheduleType.OK9_small.value,           # zamianić na df
+        optimisation_json_path=enums.OptimisationDefType.OK.value,  # zamienić na dict
+        iterations_count=5,                                         # int
         random_bonus=True
     )
-    optimisation_iteration.export_schedule()
+    optimisation_iteration.export_schedule()                        # lista id funkcja zwracająca liste
     log.print_log()

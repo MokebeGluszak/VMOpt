@@ -14,7 +14,7 @@ from zzz_tools import export_df
 def matching(schedule_path:str, supplier:enum.Supplier , booking_path:str):
 
     get_folder(const.PATH_SLOWNIKI_ALIASES_FOLDER).clear()
-    schedule: Schedule = get_schedule(schedule_path)
+    schedule: Schedule = get_schedule(schedule_path, schedule_load_mode=enum.ScheduleLoadMode.Booking)
     booking = get_booking(supplier, booking_path)
     # free_times = get_free_times(cfg.supplier, cfg.free_times_quality)
     matching_processor: MatchingProcessor = MatchingProcessor(schedule, booking, None)

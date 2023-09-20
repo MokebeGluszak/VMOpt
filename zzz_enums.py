@@ -51,9 +51,7 @@ class FreeTimesQuality(Enum):
 
 class OptimisationDefType(Enum):
     OK = r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisation json ok.json"
-    INVALID_ITEMS = (
-        r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisationJson ok.txttt"
-    )
+    INVALID_ITEMS = (r"C:\Users\macie\PycharmProjects\VMOpt\Source\optimisationJson ok.txttt")
 
 
 class ScheduleType(Enum):
@@ -62,7 +60,9 @@ class ScheduleType(Enum):
     # ILLEGAL_CHANNELS = "Illegal channels"
     # OK_4CHANNELS_1WANTED = "OK_4channels_1wanted"
 
-
+class ScheduleLoadMode(Enum):
+    Optimisation = "Optimisation"
+    Booking = "Booking"
 class ExceptionType(Enum):
     MERGER_GENERIC = "There are unjoined values \n _UnjoinedValues_ \n in merge operation \n _Caption_  \n that are absent in schedule:"
     MERGER_ILLEGAL_CHANNELS_IN_BOOKING = (
